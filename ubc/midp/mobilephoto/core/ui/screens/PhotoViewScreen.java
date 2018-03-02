@@ -2,11 +2,15 @@
  */
 
 package ubc.midp.mobilephoto.core.ui.screens;
+import javax.microedition.lcdui.Alert;
+import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
+import lancs.midp.mobilephoto.lib.exceptions.ImageNotFoundException;
+import lancs.midp.mobilephoto.lib.exceptions.PersistenceMechanismException;
 import ubc.midp.mobilephoto.core.ui.datamodel.AlbumData;
 import ubc.midp.mobilephoto.core.util.Constants;
 
@@ -40,15 +44,25 @@ public class PhotoViewScreen extends Canvas {
 	public PhotoViewScreen(AlbumData mod, String name) {
 		imageName = name;
 		model = mod;
-		loadImage();		
+		try {
+			loadImage();
+		} catch (ImageNotFoundException e) {
+			Alert alert = new Alert( "Error", "The selected image can not be found", null, AlertType.ERROR);
+	        alert.setTimeout(5000);
+		} catch (PersistenceMechanismException e) {
+			Alert alert = new Alert( "Error", "It was not possible to recovery the selected image", null, AlertType.ERROR);
+	        alert.setTimeout(5000);
+		}		
 		this.addCommand(backCommand);
 	}
 
 	/**
 	 * Get the current image from the hashtable stored in the parent midlet.
+	 * @throws PersistenceMechanismException 
+	 * @throws ImageNotFoundException 
 	 */
-	public void loadImage() {
-		image = model.getImageFromRecordStore(null, imageName);
+	public void loadImage() throws ImageNotFoundException, PersistenceMechanismException {
+			image = model.getImageFromRecordStore(null, imageName);
 	}
 
 	/*

@@ -26,7 +26,6 @@ public class PhotoListScreen extends List {
 	public static final Command addCommand = new Command("Add", Command.ITEM, 1);
 	public static final Command deleteCommand = new Command("Delete", Command.ITEM, 1);
 	public static final Command backCommand = new Command("Back", Command.BACK, 0);
-	
     /**
      * Constructor
      */

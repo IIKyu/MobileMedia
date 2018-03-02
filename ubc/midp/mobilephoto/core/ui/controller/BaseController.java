@@ -12,7 +12,14 @@ import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.List;
+import javax.microedition.rms.RecordStoreFullException;
 
+import lancs.midp.mobilephoto.lib.exceptions.ImageNotFoundException;
+import lancs.midp.mobilephoto.lib.exceptions.ImagePathNotValidException;
+import lancs.midp.mobilephoto.lib.exceptions.InvalidImageDataException;
+import lancs.midp.mobilephoto.lib.exceptions.InvalidPhotoAlbumNameException;
+import lancs.midp.mobilephoto.lib.exceptions.PersistenceMechanismException;
+import lancs.midp.mobilephoto.lib.exceptions.UnavailablePhotoAlbumException;
 import ubc.midp.mobilephoto.core.ui.MainUIMidlet;
 import ubc.midp.mobilephoto.core.ui.datamodel.AlbumData;
 import ubc.midp.mobilephoto.core.ui.screens.AddPhotoToAlbum;
@@ -47,7 +54,7 @@ public class BaseController implements CommandListener, ControllerInterface {
 	//Keep track of the navigation so we can go 'back' easily
 	private String currentScreenName;
 	
-
+	
 	//Keep track of the current photo album being viewed
 	//Ie. name of the currently active J2ME record store
 	private String currentStoreName = "My Photo Album";
@@ -146,7 +153,12 @@ public class BaseController implements CommandListener, ControllerInterface {
 			return true;	
 		/** Case: Yes delete Photo Album  **/
 		}else if (label.equals("Yes - Delete")) {
-			model.deletePhotoAlbum(currentStoreName);
+			try {
+				model.deletePhotoAlbum(currentStoreName);
+			} catch (PersistenceMechanismException e) {
+				Alert alert = new Alert( "Error", "The mobile database can not delete this photo album", null, AlertType.ERROR);
+		        Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+			}
 			goToPreviousScreen();
 			return true;	
 		/** Case: Save new Photo Album  **/	
@@ -156,7 +168,21 @@ public class BaseController implements CommandListener, ControllerInterface {
 			return true;	
 		/** Case: Save new Photo Album  **/
 		} else if (label.equals("Save")) {
-			model.createNewPhotoAlbum(((NewAlbumScreen)getCurrentScreenName()).getAlbumName());
+			try {
+				model.createNewPhotoAlbum(((NewAlbumScreen)getCurrentScreenName()).getAlbumName());
+			} catch (PersistenceMechanismException e) {
+				Alert alert = null;
+				if (e.getCause() instanceof  RecordStoreFullException)
+					alert = new Alert( "Error", "The mobile database is full", null, AlertType.ERROR);
+				else
+					alert = new Alert( "Error", "The mobile database can not add a new photo album", null, AlertType.ERROR);
+				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+				return true;
+		    } catch (InvalidPhotoAlbumNameException e) {
+		    	Alert alert = new Alert( "Error", "You have provided an invalid Photo Album name", null, AlertType.ERROR);
+				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+				return true;
+			}
 			goToPreviousScreen();
 			return true;
 			/** Case: Select PhotoAlbum to view **/
@@ -182,14 +208,41 @@ public class BaseController implements CommandListener, ControllerInterface {
 			return true;
 			/** Case: Save Add photo  **/
 		} else if (label.equals("Save Add Photo")) {
-			model.addNewPhotoToAlbum(((AddPhotoToAlbum)getCurrentScreenName()).getPhotoName(), ((AddPhotoToAlbum)getCurrentScreenName()).getPath(), currentStoreName);
+			try {
+				model.addNewPhotoToAlbum(((AddPhotoToAlbum)getCurrentScreenName()).getPhotoName(), ((AddPhotoToAlbum)getCurrentScreenName()).getPath(), currentStoreName);
+			} catch (InvalidImageDataException e) {
+				Alert alert = null;
+				if (e instanceof ImagePathNotValidException)
+					alert = new Alert( "Error", "The path is not valid", null, AlertType.ERROR);
+				else
+					alert = new Alert( "Error", "The image file format is not valid", null, AlertType.ERROR);
+				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+				return true;
+				//alert.setTimeout(5000);
+			} catch (PersistenceMechanismException e) {
+				Alert alert = null;
+				if (e.getCause() instanceof  RecordStoreFullException)
+					alert = new Alert( "Error", "The mobile database is full", null, AlertType.ERROR);
+				else
+					alert = new Alert( "Error", "The mobile database can not add a new photo", null, AlertType.ERROR);
+				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+			}
 			goToPreviousScreen();
 			return true;
 
 		/** Case: Delete selected Photo from recordstore **/
 		} else if (label.equals("Delete")) {
 	      	String selectedImageName = getSelectedImageName();
-	      	model.deleteImage(currentStoreName, selectedImageName);
+	      	try {
+				model.deleteImage(currentStoreName, selectedImageName);
+			} catch (PersistenceMechanismException e) {
+				Alert alert = new Alert( "Error", "The mobile database can not delete this photo", null, AlertType.ERROR);
+				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+		        return true;
+			} catch (ImageNotFoundException e) {
+				Alert alert = new Alert( "Error", "The selected photo was not found in the mobile device", null, AlertType.ERROR);
+				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());		        return true;
+			}
 	      	showImageList(currentStoreName);
 		    currentScreenName = Constants.IMAGELIST_SCREEN;
 			return true;
@@ -235,10 +288,9 @@ public class BaseController implements CommandListener, ControllerInterface {
 	 * so we can ensure , in order to use it in the aspect advice
 	 */
 	public void commandAction(Command c, Displayable d) {
-
 	    postCommand(c,d);
-		
 	}
+
 
     /**
 	 * This option is mainly for testing purposes. If the record store
@@ -247,7 +299,17 @@ public class BaseController implements CommandListener, ControllerInterface {
 	 * re-creates them with the default images bundled with the application 
 	 */
 	private void resetImageData() {
-        model.resetImageData();
+        try {
+			model.resetImageData();
+		} catch (PersistenceMechanismException e) {
+			Alert alert = null;
+			if (e.getCause() instanceof  RecordStoreFullException)
+				alert = new Alert( "Error", "The mobile database is full", null, AlertType.ERROR);
+			else
+				alert = new Alert( "Error", "It is not possible to reset the database", null, AlertType.ERROR);
+			Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+	        return;
+		}
         
         //Clear the names from the album list
         for (int i = 0; i < albumListScreen.size(); i++) {
@@ -328,18 +390,21 @@ public class BaseController implements CommandListener, ControllerInterface {
 	public void showImage() {
 		List selected = (List) display.getCurrent();
 		String name = selected.getString(selected.getSelectedIndex());
-		
-		//First check if it is in the hashtable alrady
-		Image storedImage = model.getImageFromRecordStore(currentStoreName, name);
-
-		//If it's not in the table, load it from the recordstore
-		if (storedImage == null) {
+		Image storedImage = null;
+		try {
 			storedImage = model.getImageFromRecordStore(currentStoreName, name);
-		}
-				
+		} catch (ImageNotFoundException e) {
+			Alert alert = new Alert( "Error", "The selected photo was not found in the mobile device", null, AlertType.ERROR);
+			Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+	        return;
+		} catch (PersistenceMechanismException e) {
+			Alert alert = new Alert( "Error", "The mobile database can open this photo", null, AlertType.ERROR);
+			Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+	        return;
+		}		
+		
 		//We can pass in the image directly here, or just the name/model pair and have it loaded
 		PhotoViewScreen canv = new PhotoViewScreen(storedImage);
-		
 		canv.setCommandListener(this);
 		setCurrentScreen(canv);
 	}
@@ -359,7 +424,14 @@ public class BaseController implements CommandListener, ControllerInterface {
 		imageList.initMenu();
 		imageList.setCommandListener(this);
 		
-		String[] labels = model.getImageNames(recordName);
+		String[] labels = null;
+		try {
+			labels = model.getImageNames(recordName);
+		} catch (UnavailablePhotoAlbumException e) {
+			Alert alert = new Alert( "Error", "The list of photos can not be recovered", null, AlertType.ERROR);
+			Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+	        return;
+	    }
 		
 		//loop through array and add labels to list
 		for (int i = 0; i < labels.length; i++) {

@@ -21,8 +21,8 @@ public class Constants {
 	public static final String ADDPHOTOTOALBUM_SCREEN = "AddPhotoToAlbum";
 
 	//#ifdef device_screen_176x205
-	
-	/** Screen Size*/
+    
+    /** Screen Size*/
 	public static final int SCREEN_WIDTH  = 176;
 	public static final int SCREEN_HEIGHT = 205;
     

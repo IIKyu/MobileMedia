@@ -7,6 +7,13 @@ import java.util.Hashtable;
 
 import javax.microedition.lcdui.Image;
 
+import lancs.midp.mobilephoto.lib.exceptions.ImageNotFoundException;
+import lancs.midp.mobilephoto.lib.exceptions.InvalidImageDataException;
+import lancs.midp.mobilephoto.lib.exceptions.InvalidPhotoAlbumNameException;
+import lancs.midp.mobilephoto.lib.exceptions.NullAlbumDataReference;
+import lancs.midp.mobilephoto.lib.exceptions.PersistenceMechanismException;
+import lancs.midp.mobilephoto.lib.exceptions.UnavailablePhotoAlbumException;
+
 /**
  * @author tyoung
  * 
@@ -44,16 +51,35 @@ public class AlbumData {
 		//Shouldn't load all the albums each time
 		//Add a check somewhere in ImageAccessor to see if they've been
 		//loaded into memory already, and avoid the extra work...
-		imageAccessor.loadAlbums();
+		try {
+			imageAccessor.loadAlbums();
+		} catch (InvalidImageDataException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (PersistenceMechanismException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return imageAccessor.getAlbumNames();
 	}
 
 	/**
 	 *  Get the names of all images for a given Photo Album that exist in the Record Store.
+	 * @throws UnavailablePhotoAlbumException 
+	 * @throws InvalidImageDataException 
+	 * @throws PersistenceMechanismException 
 	 */
-	public String[] getImageNames(String recordName) {
+	public String[] getImageNames(String recordName) throws UnavailablePhotoAlbumException  {
 
-		String[] result = imageAccessor.loadImageDataFromRMS(recordName);
+		String[] result;
+		try {
+			result = imageAccessor.loadImageDataFromRMS(recordName);
+		} catch (PersistenceMechanismException e) {
+			throw new UnavailablePhotoAlbumException(e);
+			
+		} catch (InvalidImageDataException e) {
+			throw new UnavailablePhotoAlbumException(e);
+		}
 
 		return result;
 
@@ -62,50 +88,70 @@ public class AlbumData {
 	/**
 	 *  Define a new user photo album. This results in the creation of a new
 	 *  RMS Record store.
+	 * @throws PersistenceMechanismException 
+	 * @throws InvalidPhotoAlbumNameException 
 	 */
-	public void createNewPhotoAlbum(String albumName) {
+	public void createNewPhotoAlbum(String albumName) throws PersistenceMechanismException, InvalidPhotoAlbumNameException {
 		imageAccessor.createNewPhotoAlbum(albumName);
 	}
 	
-	public void deletePhotoAlbum(String albumName){
+	public void deletePhotoAlbum(String albumName) throws PersistenceMechanismException{
 		imageAccessor.deletePhotoAlbum(albumName);
 	}
 
 	/**
 	 *  Get a particular image (by name) from a photo album. The album name corresponds
 	 *  to a record store.
+	 * @throws ImageNotFoundException 
+	 * @throws PersistenceMechanismException 
 	 */
-	public Image getImageFromRecordStore(String recordStore, String imageName) {
+	public Image getImageFromRecordStore(String recordStore, String imageName) throws ImageNotFoundException, PersistenceMechanismException {
 
-		ImageData imageInfo = imageAccessor.getImageInfo(imageName);
-
+		ImageData imageInfo = null;
+		try {
+			imageInfo = imageAccessor.getImageInfo(imageName);
+		} catch (NullAlbumDataReference e) {
+			imageAccessor = new ImageAccessor(this);
+		}
 		//Find the record ID and store name of the image to retrieve
 		int imageId = imageInfo.getForeignRecordId();
 		String album = imageInfo.getParentAlbumName();
-
 		//Now, load the image (on demand) from RMS and cache it in the hashtable
-
 		Image imageRec = imageAccessor.loadSingleImageFromRMS(album, imageName, imageId); //rs.getRecord(recordId);
 		return imageRec;
 
 	}
-	public void addNewPhotoToAlbum(String label, String path, String album){
+	public void addNewPhotoToAlbum(String label, String path, String album) throws InvalidImageDataException, PersistenceMechanismException{
 		imageAccessor.addImageData(label, path, album);
 	}
-	
+
 	/**
 	 *  Delete a photo from the photo album. This permanently deletes the image from the record store
+	 * @throws ImageNotFoundException 
+	 * @throws PersistenceMechanismException 
 	 */
-	public boolean deleteImage(String imageName, String storeName) {
-		return imageAccessor.deleteSingleImageFromRMS(imageName, storeName); 
+	public void deleteImage(String imageName, String storeName) throws PersistenceMechanismException, ImageNotFoundException {
+		try {
+			imageAccessor.deleteSingleImageFromRMS(imageName, storeName);
+		}
+		catch (NullAlbumDataReference e) {
+			imageAccessor = new ImageAccessor(this);
+			e.printStackTrace();
+		} 
 	}
 	
 	/**
 	 *  Reset the image data for the application. This is a wrapper to the ImageAccessor.resetImageRecordStore
 	 *  method. It is mainly used for testing purposes, to reset device data to the default album and photos.
+	 * @throws PersistenceMechanismException 
+	 * @throws InvalidImageDataException 
 	 */
-	public void resetImageData() {
-		imageAccessor.resetImageRecordStore();
+	public void resetImageData() throws PersistenceMechanismException {
+		try {
+			imageAccessor.resetImageRecordStore();
+		} catch (InvalidImageDataException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

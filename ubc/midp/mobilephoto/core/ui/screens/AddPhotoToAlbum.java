@@ -5,12 +5,12 @@ import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.TextField;
 
 public class AddPhotoToAlbum extends Form {
+	
 	TextField labeltxt = new TextField("Photo label", "", 15, TextField.ANY);
 	TextField photopathtxt = new TextField("Path", "", 20, TextField.ANY);
 	
 	Command ok;
 	Command cancel;
-
 
 	public AddPhotoToAlbum(String title) {
 		super(title);
@@ -21,6 +21,7 @@ public class AddPhotoToAlbum extends Form {
 		this.addCommand(ok);
 		this.addCommand(cancel);
 	}
+	
 	public String getPhotoName(){
 		return labeltxt.getString();
 	}
@@ -28,5 +29,4 @@ public class AddPhotoToAlbum extends Form {
 	public String getPath(){
 		return photopathtxt.getString();
 	}
-
 }

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="mobilemedia" default="rev2" basedir=".">
+	<property name="pyc.root" value="japyc" />
+	<property name="pyc.bin" value="${pyc.root}/bin" />
+	<property name="pyc.lib" value="${pyc.root}/lib" />
+	
+	<taskdef name="pyc" classname="edu.iastate.cs.ja_pyc.ant.JapycJavacAdaptor">
+		<classpath>
+			<pathelement location="${pyc.bin}/ja-pyc.jar"/>
+		</classpath>
+	</taskdef>
+	
+	<target name="rev1">
+		<antcall target="build-version">
+			<param name="source" value="mp_oo_01"/>
+		</antcall>
+	</target>
+	
+	<target name="rev2">
+		<antcall target="build-version">
+			<param name="source" value="mp_oo_02"/>
+		</antcall>
+	</target>
+	
+	<target name="rev3">
+		<antcall target="build-version">
+			<param name="source" value="mp_oo_03"/>
+		</antcall>
+	</target>
+	
+	<target name="rev4">
+		<antcall target="build-version">
+			<param name="source" value="mp_oo_04"/>
+		</antcall>
+	</target>
+	
+	<target name="rev5">
+		<antcall target="build-version">
+			<param name="source" value="mp_oo_05"/>
+		</antcall>
+	</target>
+	
+	<target name="rev6">
+		<antcall target="build-version">
+			<param name="source" value="mp_oo_06"/>
+		</antcall>
+	</target>
+	
+	<target name="rev7">
+		<antcall target="build-version">
+			<param name="source" value="mp_oo_07"/>
+		</antcall>
+	</target>
+	
+	<target name="rev8">
+		<antcall target="build-version">
+			<param name="source" value="mp_oo_08"/>
+		</antcall>
+	</target>
+	
+	<target name="build-version">
+		<pyc srcdir="${source}" destdir="${source}"
+			debuglevel="lines,source"
+			source="1.5"
+			target="1.5"
+			ckjm="true"
+			dumpxml="${source}.xml"
+			excludes=".svn/**"
+			includes="**/*.java">
+			<compilerarg line="-Xlint:none"/>
+			<classpath>
+				<pathelement location="${pyc.bin}/ja-pyc.jar"/>
+				<pathelement location="${pyc.lib}/pytolemy_rt.jar"/>
+				<fileset dir="libs" includes="*.jar"/>
+				<pathelement location="${source}"/>
+			</classpath>
+		</pyc>
+	</target>
+	
+	<target name="clean" description="remove .class filse">
+		<delete>
+			<fileset dir="." includes="**/*.class"/>
+		</delete>
+	</target>
+</project>
