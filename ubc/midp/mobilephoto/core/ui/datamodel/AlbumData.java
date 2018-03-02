@@ -69,9 +69,9 @@ public class AlbumData {
 	 * @throws InvalidImageDataException 
 	 * @throws PersistenceMechanismException 
 	 */
-	public String[] getImageNames(String recordName) throws UnavailablePhotoAlbumException  {
+	public ImageData[] getImages(String recordName) throws UnavailablePhotoAlbumException  {
 
-		String[] result;
+		ImageData[] result;
 		try {
 			result = imageAccessor.loadImageDataFromRMS(recordName);
 		} catch (PersistenceMechanismException e) {
@@ -169,5 +169,21 @@ public class AlbumData {
 	 */
 	public void setImageInfoTable(Hashtable imageInfoTable) {
 		this.imageInfoTable = imageInfoTable;
+	}
+
+	/**
+	 * [EF] Add in order to have access to ImageData
+	 * @param imageAccessor
+	 */
+	public void setImageAccessor(ImageAccessor imageAccessor) {
+		this.imageAccessor = imageAccessor;
+	}
+
+	/**
+	 * [EF] Add in order to have access to ImageData
+	 * @return
+	 */
+	public ImageAccessor getImageAccessor() {
+		return imageAccessor;
 	}
 }

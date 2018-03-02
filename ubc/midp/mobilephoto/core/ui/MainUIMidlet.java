@@ -50,6 +50,7 @@ public class MainUIMidlet extends MIDlet {
 	    rootController = new BaseController(this, model);
 		//Only the first (last?) controller needs to be initialized (?)
 		rootController.init(model);
+
 	}
 
 	/**

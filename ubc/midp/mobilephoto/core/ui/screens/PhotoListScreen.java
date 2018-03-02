@@ -6,7 +6,6 @@ package ubc.midp.mobilephoto.core.ui.screens;
 
 import javax.microedition.lcdui.Choice;
 import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.List;
 
 
@@ -26,33 +25,21 @@ public class PhotoListScreen extends List {
 	public static final Command addCommand = new Command("Add", Command.ITEM, 1);
 	public static final Command deleteCommand = new Command("Delete", Command.ITEM, 1);
 	public static final Command backCommand = new Command("Back", Command.BACK, 0);
-    /**
+
+	// [EF] Added in the scenario 02 
+	public static final Command editLabelCommand = new Command("Edit Label", Command.ITEM, 1);
+
+	// #ifdef includeCountViews
+	public static final Command sortCommand = new Command("Sort by Views", Command.ITEM, 1);
+	// #endif
+
+	/**
      * Constructor
      */
 	public PhotoListScreen() {
 		super("Choose Items", Choice.IMPLICIT);
 	}
 	
-	/**
-	 * Constructor
-	 * @param arg0
-	 * @param arg1
-	 */
-	public PhotoListScreen(String arg0, int arg1) {
-		super(arg0, arg1);
-	}
-
-	/**
-	 * Constructor
-	 * @param arg0
-	 * @param arg1
-	 * @param arg2
-	 * @param arg3
-	 */
-	public PhotoListScreen(String arg0, int arg1, String[] arg2, Image[] arg3) {
-		super(arg0, arg1, arg2, arg3);
-	}
-
 	/**
 	 * Initialize the menu items for this screen
 	 */
@@ -62,6 +49,14 @@ public class PhotoListScreen extends List {
 		this.addCommand(viewCommand);
 		this.addCommand(addCommand);
 		this.addCommand(deleteCommand);
+		
+		// [EF] Added in the scenario 02 
+		this.addCommand(editLabelCommand);
+
+		// #ifdef includeCountViews
+		this.addCommand(sortCommand);
+		// #endif
+		
 		this.addCommand(backCommand);
 
 		//Add the optional feature menu items only if they are specified in 

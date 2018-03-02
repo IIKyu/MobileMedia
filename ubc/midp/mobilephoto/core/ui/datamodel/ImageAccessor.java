@@ -192,6 +192,7 @@ public class ImageAccessor {
 	public void addImageData(String photoname, String path, String albumname)
 			throws InvalidImageDataException, PersistenceMechanismException {
 
+//		System.out.println("<* ImageAccessor.addImageData *> photoname = "+photoname);
 		try {
 			imageRS = RecordStore
 					.openRecordStore(ALBUM_LABEL + albumname, true);
@@ -233,12 +234,14 @@ public class ImageAccessor {
 	 * 
 	 * @throws PersistenceMechanismException
 	 */
-	public String[] loadImageDataFromRMS(String recordName)
+	public ImageData[] loadImageDataFromRMS(String recordName)
 			throws PersistenceMechanismException, InvalidImageDataException {
 
-		Vector labelVector = new Vector();
+		Vector imagesVector = new Vector();
 
 		try {
+
+// [EF] not used			String storeName = ImageAccessor.ALBUM_LABEL + recordName;
 			String infoStoreName = ImageAccessor.INFO_LABEL + recordName;
 
 			RecordStore infoStore = RecordStore.openRecordStore(infoStoreName,
@@ -256,9 +259,11 @@ public class ImageAccessor {
 				ImageUtil converter = new ImageUtil();
 				ImageData iiObject = converter.getImageInfoFromBytes(data);
 
+//				System.out.println("<* ImageAccessor.loadImageDataFromRMS *> iiObject = "+iiObject.getImageLabel());
+				
 				// Add the info to the metadata hashtable
 				String label = iiObject.getImageLabel();
-				labelVector.addElement(label);
+				imagesVector.addElement(iiObject);
 				model.getImageInfoTable().put(label, iiObject);
 
 			}
@@ -270,8 +275,8 @@ public class ImageAccessor {
 		}
 
 		// Re-copy the contents into a smaller array
-		String[] labelArray = new String[labelVector.size()];
-		labelVector.copyInto(labelArray);
+		ImageData[] labelArray = new ImageData[imagesVector.size()];
+		imagesVector.copyInto(labelArray);
 		return labelArray;
 	}
 
@@ -462,6 +467,8 @@ public class ImageAccessor {
 
 	public void deletePhotoAlbum(String albumName) throws PersistenceMechanismException {
 
+//		System.out.println("<* deletePhotoAlbum.ImageAccessor *> albumName = "+albumName);
+//		System.out.println("<* deletePhotoAlbum.ImageAccessor *> ALBUM_LABEL + albumName = "+ALBUM_LABEL + albumName);
 		try {
 			RecordStore.deleteRecordStore(ALBUM_LABEL + albumName);
 			RecordStore.deleteRecordStore(INFO_LABEL + albumName);

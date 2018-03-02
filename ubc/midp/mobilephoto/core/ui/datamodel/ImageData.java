@@ -17,13 +17,17 @@ package ubc.midp.mobilephoto.core.ui.datamodel;
  */
 public class ImageData {
 	
-	private int recordId; //imageData recordId
+	private int recordId; //imageData recordId 
 	private int foreignRecordId; //image recordId
 	private String parentAlbumName; //Should we allow single image to be part of multiple albums?
 	private String imageLabel;
 	
+	// #ifdef includeCountViews
+	// [EF] Added in the scenario 02 
+	private int numberOfViews = 0;
+	// #endif
+	
 	/**
-	 * Constructor
 	 * @param foreignRecordId
 	 * @param parentAlbumName
 	 * @param imageLabel
@@ -33,6 +37,7 @@ public class ImageData {
 		this.foreignRecordId = foreignRecordId;
 		this.parentAlbumName = parentAlbumName;
 		this.imageLabel = imageLabel;
+		
 	}
 	
 	/**
@@ -90,4 +95,29 @@ public class ImageData {
 	public void setParentAlbumName(String parentAlbumName) {
 		this.parentAlbumName = parentAlbumName;
 	}
+
+	// #ifdef includeCountViews
+	/**
+	 * [EF] Added in the scenario 02 
+	 */
+	public void increaseNumberOfViews() {
+		this.numberOfViews++;
+	}
+
+	/**
+	 * [EF] Added in the scenario 02 
+	 * @return the numberOfViews
+	 */
+	public int getNumberOfViews() {
+		return numberOfViews;
+	}
+	
+	/**
+	 * [EF] Added in the scenario 02 
+	 * @param views
+	 */
+	public void setNumberOfViews(int views) {
+		this.numberOfViews = views;
+	}
+	// #endif	
 }
