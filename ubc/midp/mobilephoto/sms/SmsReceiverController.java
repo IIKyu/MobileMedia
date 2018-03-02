@@ -39,7 +39,8 @@ public class SmsReceiverController extends AbstractController {
 	       	Image copy = Image.createImage(image.getWidth(), image.getHeight()); 
 	     	PhotoViewScreen canv = new PhotoViewScreen(copy);
 			canv.setFromSMS(true);
-			canv.setCommandListener(new PhotoViewController(this.midlet, getAlbumData(), getAlbumListScreen(), "NoName"));
+			// [NC] Changed in the scenario 07: just the first line below to support generic AbstractController
+			canv.setCommandListener(new PhotoViewController(this.midlet, getAlbumData(), (AlbumListScreen) getAlbumListScreen(), "NoName"));
 			this.setCurrentScreen(canv);
 	   		return true;
 
@@ -47,7 +48,8 @@ public class SmsReceiverController extends AbstractController {
 	      	
 	      	//TODO: Go back to whatever screen they were previously on?
 	      	System.out.println("Reject Photo command");
-	      	getAlbumListScreen().repaintListAlbum(getAlbumData().getAlbumNames());
+	     // [NC] Changed in the scenario 07: just the first line below to support generic AbstractController
+	      	((AlbumListScreen) getAlbumListScreen()).repaintListAlbum(getAlbumData().getAlbumNames());
 			setCurrentScreen( getAlbumListScreen() );
 			ScreenSingleton.getInstance().setCurrentScreenName(Constants.ALBUMLIST_SCREEN);
 			return true;
@@ -55,7 +57,8 @@ public class SmsReceiverController extends AbstractController {
 	      /* For All commands not handled here, send them to the super class */
 	      } else if (label.equals("Ok"))
 	      {
-	    	   	getAlbumListScreen().repaintListAlbum(getAlbumData().getAlbumNames());
+	    	// [NC] Changed in the scenario 07: just the first line below to support generic AbstractController
+	    	   	((AlbumListScreen) getAlbumListScreen()).repaintListAlbum(getAlbumData().getAlbumNames());
 				setCurrentScreen( getAlbumListScreen() );
 				ScreenSingleton.getInstance().setCurrentScreenName(Constants.ALBUMLIST_SCREEN);
 				return true;

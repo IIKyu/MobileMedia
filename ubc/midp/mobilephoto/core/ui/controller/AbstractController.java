@@ -13,10 +13,10 @@ import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.List;
 
 import ubc.midp.mobilephoto.core.ui.MainUIMidlet;
 import ubc.midp.mobilephoto.core.ui.datamodel.AlbumData;
-import ubc.midp.mobilephoto.core.ui.screens.AlbumListScreen;
 
 /**
  * [EF] Added in scenario 04. 
@@ -34,7 +34,8 @@ public abstract class AbstractController implements CommandListener, ControllerI
 	private AlbumData albumData;
 
 	//Define the basic screens
-	private AlbumListScreen albumListScreen;
+	// [NC] Changed in the scenario 07: just the first line below to support generic AbstractController
+	private List albumListScreen;
 
 	/**
 	 * @param midlet
@@ -43,7 +44,8 @@ public abstract class AbstractController implements CommandListener, ControllerI
 	 * @param albumListScreen
 	 * @param currentScreenName
 	 */
-	public AbstractController(MainUIMidlet midlet, AlbumData albumData, AlbumListScreen albumListScreen) {
+	// [NC] Changed in the scenario 07: just the first line below to support generic AbstractController
+	public AbstractController(MainUIMidlet midlet, AlbumData albumData, List albumListScreen) {
 		this.midlet = midlet;
 		this.albumData = albumData;
 		this.albumListScreen = albumListScreen;
@@ -146,7 +148,8 @@ public abstract class AbstractController implements CommandListener, ControllerI
 	/**
 	 * @return the albumListScreen
 	 */
-	public AlbumListScreen getAlbumListScreen() {
+	// [NC] Changed in the scenario 07: just the first line below to support generic AbstractController
+	public List getAlbumListScreen() {
 		return albumListScreen;
 	}
 }

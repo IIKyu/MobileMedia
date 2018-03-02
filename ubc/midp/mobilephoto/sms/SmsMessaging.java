@@ -124,9 +124,7 @@ public class SmsMessaging extends BaseMessaging {
 		    //instead of blocking on the thread
 		    
 		    //This will block until a message is received
-		    System.out.println("DEBUG 1: before smsConn.receive():"+smsConn);
 			msg = smsConn.receive();
-		    System.out.println("DEBUG 2: after smsConn.receive()");
 			
 			if (msg != null) {
 				senderAddress = msg.getAddress();

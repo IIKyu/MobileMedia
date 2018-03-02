@@ -9,15 +9,13 @@ package ubc.midp.mobilephoto.sms;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Display;
 
 import lancs.midp.mobilephoto.lib.exceptions.ImageNotFoundException;
-import lancs.midp.mobilephoto.lib.exceptions.NullAlbumDataReference;
 import lancs.midp.mobilephoto.lib.exceptions.PersistenceMechanismException;
 import ubc.midp.mobilephoto.core.ui.MainUIMidlet;
 import ubc.midp.mobilephoto.core.ui.controller.AbstractController;
 import ubc.midp.mobilephoto.core.ui.datamodel.AlbumData;
-import ubc.midp.mobilephoto.core.ui.datamodel.ImageData;
+import ubc.midp.mobilephoto.core.ui.datamodel.MediaData;
 import ubc.midp.mobilephoto.core.ui.screens.AlbumListScreen;
 
 /**
@@ -32,15 +30,9 @@ import ubc.midp.mobilephoto.core.ui.screens.AlbumListScreen;
  */
 public class SmsSenderController extends AbstractController {
 
-    String selectedImageName = "null";
 	String imageName = "";
     NetworkScreen networkScreen;
 
-	/**
-	 * @param midlet
-	 */
-
-	
 	/**
 	 * @param midlet
 	 * @param nextController
@@ -58,10 +50,7 @@ public class SmsSenderController extends AbstractController {
 	 * If we are given a standard command that is handled by the BaseController, pass 
 	 * the handling off to our super class with the else clause
 	 */
-
 	public boolean handleCommand(Command c) {
-	    
-
 		String label = c.getLabel();
       	System.out.println("SmsSenderController::handleCommand: " + label);
 		
@@ -69,7 +58,6 @@ public class SmsSenderController extends AbstractController {
 		if (label.equals("Send Photo by SMS")) {
 
 		    networkScreen = new NetworkScreen("Reciever Details");
-		    selectedImageName = imageName;
 			networkScreen.setCommandListener(this);
 	      	this.setCurrentScreen(networkScreen);
       		return true;
@@ -77,25 +65,21 @@ public class SmsSenderController extends AbstractController {
 	      } else if (label.equals("Send Now")) {
 	      	
 	      	//Get the data from the currently selected image
-	      	ImageData ii = null;
+	      	MediaData ii = null;
 	      	byte[] imageBytes = null;
 			try {
-				ii = getAlbumData().getImageAccessor().getImageInfo(selectedImageName);
-				imageBytes = getAlbumData().getImageAccessor().loadImageBytesFromRMS(ii.getParentAlbumName(), ii.getImageLabel(), ii.getForeignRecordId());
+				ii = getAlbumData().getMediaInfo(imageName);
+				imageBytes = getAlbumData().loadMediaBytesFromRMS(ii.getParentAlbumName(), ii.getForeignRecordId());
 			} catch (ImageNotFoundException e) {
 				Alert alert = new Alert( "Error", "The selected image can not be found", null, AlertType.ERROR);
 		        alert.setTimeout(5000);
-			} catch (NullAlbumDataReference e) {
-				this.setAlbumData( new AlbumData() );
-				Alert alert = new Alert( "Error", "The operation is not available. Try again later !", null, AlertType.ERROR);
-				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
 			} catch (PersistenceMechanismException e) {
 				Alert alert = new Alert( "Error", "It was not possible to recovery the selected image", null, AlertType.ERROR);
 		        alert.setTimeout(5000);
 			}
 		  	
 
-		  	System.out.println("SmsController::handleCommand - Sending bytes for image " + ii.getImageLabel() + " with length: " + imageBytes.length);
+		  	System.out.println("SmsController::handleCommand - Sending bytes for image " + ii.getMediaLabel() + " with length: " + imageBytes.length);
 		  	
 			//Get the destination info - set some defaults just in case
 			String smsPort = "1000";
