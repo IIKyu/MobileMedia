@@ -15,9 +15,13 @@ import ubc.midp.mobilephoto.core.util.Constants;
   */
 public class PhotoViewScreen extends Canvas {
 
-//	String imageName = "";
 	Image image;
 	AlbumData model = null;
+	
+	// #ifdef includeSmsFeature
+	/* [NC] Added in scenario 06 */
+	byte[] byteImage = null;
+	//#endif
     
 	public static final Command backCommand = new Command("Back", Command.BACK, 0);
 
@@ -57,7 +61,6 @@ public class PhotoViewScreen extends Canvas {
 	 * @see javax.microedition.lcdui.Canvas#paint(javax.microedition.lcdui.Graphics)
 	 */
 	protected void paint(Graphics g) {
-		
 	    g.setGrayScale (255);
 
 	    //Draw the image - for now start drawing in top left corner of screen
@@ -73,12 +76,18 @@ public class PhotoViewScreen extends Canvas {
 
 	// #ifdef includeSmsFeature
 	/* [NC] Added in scenario 06 */
-	public Image getImage(){
-		return image;
+	public void setImage(byte[] img){
+		byteImage = img;
 	}
+	
+	public byte[] getImage(){
+		return byteImage;
+	}
+	
 	public boolean isFromSMS() {
 		return fromSMS;
 	}
+	
 	public void setFromSMS(boolean fromSMS) {
 		this.fromSMS = fromSMS;
 	}

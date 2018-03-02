@@ -3,22 +3,20 @@
 package ubc.midp.mobilephoto.core.ui.datamodel;
 
 import javax.microedition.lcdui.Image;
-import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
-
-import ubc.midp.mobilephoto.core.util.MediaUtil;
 
 import lancs.midp.mobilephoto.lib.exceptions.ImagePathNotValidException;
 import lancs.midp.mobilephoto.lib.exceptions.InvalidArrayFormatException;
 import lancs.midp.mobilephoto.lib.exceptions.InvalidImageDataException;
 import lancs.midp.mobilephoto.lib.exceptions.InvalidImageFormatException;
 import lancs.midp.mobilephoto.lib.exceptions.PersistenceMechanismException;
+import ubc.midp.mobilephoto.core.util.MediaUtil;
 
 public class ImageMediaAccessor extends MediaAccessor {
 	
 	private MediaUtil converter = new MediaUtil();
 	
-	public ImageMediaAccessor() {
+	public ImageMediaAccessor(AlbumData mod) {
 		super("mpa-","mpi-","My Photo Album");
 	}
 	
@@ -33,43 +31,13 @@ public class ImageMediaAccessor extends MediaAccessor {
 	 * 
 	 */
 	public void resetRecordStore() throws InvalidImageDataException, PersistenceMechanismException {
-
-		String storeName = null;
-		String infoStoreName = null;
-
-		// remove any existing album stores...
-		if (albumNames != null) {
-			for (int i = 0; i < albumNames.length; i++) {
-				try {
-					// Delete all existing stores containing Image objects as
-					// well as the associated ImageInfo objects
-					// Add the prefixes labels to the info store
-
-					storeName = album_label + albumNames[i];
-					infoStoreName = info_label + albumNames[i];
-
-					System.out.println("<* ImageAccessor.resetImageRecordStore() *> delete "+storeName);
-					
-					RecordStore.deleteRecordStore(storeName);
-					RecordStore.deleteRecordStore(infoStoreName);
-
-				} catch (RecordStoreException e) {
-					System.out.println("No record store named " + storeName
-							+ " to delete.");
-					System.out.println("...or...No record store named "
-							+ infoStoreName + " to delete.");
-					System.out.println("Ignoring Exception: " + e);
-					// ignore any errors...
-				}
-			}
-		} else {
-			// Do nothing for now
-			System.out
-					.println("ImageAccessor::resetImageRecordStore: albumNames array was null. Nothing to delete.");
-		}
-
+		removeRecords();
 		// Now, create a new default album for testing
 		addMediaData("Tucan Sam", "/images/Tucan.png",
+				default_album_name);
+		
+		// Now, create a new default album for testing
+		addMediaData("Java", "/images/Java.png",
 				default_album_name);
 		// Add Penguin
 		addMediaData("Linux Penguin", "/images/Penguin.png",
@@ -109,32 +77,12 @@ public class ImageMediaAccessor extends MediaAccessor {
 	}
 
 	
-	// #ifdef includeSmsFeature
+	// #if includeSmsFeature || capturePhoto
 	/* [NC] Added in scenario 06 */
-	public byte[] getByteFromImage(Image img){
-		int w = img.getWidth();
-		int h = img.getHeight();
-		int data_int[] = new int[ w * h ];
-		img.getRGB( data_int, 0, w, 0, 0, w, h );
-		byte[] data_byte = new byte[ w * h * 3 ];
-		for ( int i = 0; i < w * h; ++i )
-		{
-		int color = data_int[ i ];
-		int offset = i * 3;
-		data_byte[ offset ] = ( byte ) ( ( color & 0xff0000 ) >> 16 );
-		data_byte[ offset +
-		1 ] = ( byte ) ( ( color & 0xff00 ) >> 8 );
-		data_byte[ offset + 2 ] = ( byte ) ( ( color & 0xff ) );
-		}
-		return data_byte;
-	}
-	
-	
-	public void addImageData(String photoname, Image imgdata, String albumname)
+	public void addImageData(String photoname, byte[] imgdata, String albumname)
 			throws InvalidImageDataException, PersistenceMechanismException {
 		try {
-			byte[] data1 = getByteFromImage(imgdata);
-			addMediaArrayOfBytes(photoname, albumname, data1);
+			addMediaArrayOfBytes(photoname, albumname, imgdata);
 			} catch (RecordStoreException e) {
 			throw new PersistenceMechanismException();
 		}

@@ -9,6 +9,10 @@ import ubc.midp.mobilephoto.core.ui.controller.BaseController;
 import ubc.midp.mobilephoto.core.ui.controller.MediaListController;
 import ubc.midp.mobilephoto.core.ui.controller.ScreenSingleton;
 import ubc.midp.mobilephoto.core.ui.datamodel.AlbumData;
+//#ifdef includeVideo
+//[NC] Added in the scenario 08
+import ubc.midp.mobilephoto.core.ui.datamodel.VideoAlbumData;
+//#endif
 //#ifdef includePhotoAlbum
 //[NC] Added in the scenario 07
 import ubc.midp.mobilephoto.core.ui.datamodel.ImageAlbumData;
@@ -18,7 +22,7 @@ import ubc.midp.mobilephoto.core.ui.datamodel.ImageAlbumData;
 import ubc.midp.mobilephoto.core.ui.datamodel.MusicAlbumData;
 //#endif
 import ubc.midp.mobilephoto.core.ui.screens.AlbumListScreen;
-//#if includeMMAPI && includePhotoAlbum
+//#if (includeMMAPI && includePhotoAlbum)||(includeMMAPI && includeVideo) || (includeVideo && includePhotoAlbum)
 //[NC] Added in the scenario 07
 import ubc.midp.mobilephoto.core.ui.controller.SelectMediaController;
 import ubc.midp.mobilephoto.core.ui.screens.SelectTypeOfMedia;
@@ -33,7 +37,6 @@ import ubc.midp.mobilephoto.sms.SmsReceiverThread;
 //classes for device specific features. They must be commented out
 //if they aren't used, otherwise it will throw exceptions trying to
 //load classes that aren't available for a given platform.
-
 
 /* 
  * @author trevor
@@ -55,24 +58,21 @@ public class MainUIMidlet extends MIDlet {
 	// #ifdef includePhotoAlbum
 	// [NC] Added in the scenario 07
 	private BaseController imageRootController;
+	private AlbumData imageModel;
 	//#endif
 
 	//	#ifdef includeMMAPI
 	// [NC] Added in the scenario 07
 	private BaseController musicRootController;
-	//#endif
-	
-	//Model (M v c)
-	// #ifdef includePhotoAlbum
-	// [NC] Added in the scenario 07
-	private AlbumData imageModel;
-	//#endif
-	
-	//	#ifdef includeMMAPI
-	// [NC] Added in the scenario 07
 	private AlbumData musicModel;
 	//#endif
 
+	//	#ifdef includeVideo
+	// [NC] Added in the scenario 08
+	private BaseController videoRootController;
+	private AlbumData videoModel;
+	//#endif
+	
 	/**
 	 * Constructor -
 	 */
@@ -85,19 +85,10 @@ public class MainUIMidlet extends MIDlet {
 	 * initialize them as necessary
 	 */
 	public void startApp() throws MIDletStateChangeException {
-		
 		// #ifdef includePhotoAlbum
 		// [NC] Added in the scenario 07
 		imageModel = new ImageAlbumData();
-		//#endif
-		
-		//		#ifdef includeMMAPI
-		// [NC] Added in the scenario 07
-		musicModel = new MusicAlbumData();
-		//#endif
-		
-		// #ifdef includePhotoAlbum
-		// [NC] Added in the scenario 07
+
 		AlbumListScreen album = new AlbumListScreen();
 		imageRootController = new BaseController(this, imageModel, album);
 		
@@ -110,9 +101,10 @@ public class MainUIMidlet extends MIDlet {
 		album.setCommandListener(albumController);
 		//#endif
 		
-		
 		// #ifdef includeMMAPI
 		// [NC] Added in the scenario 07
+		musicModel = new MusicAlbumData();
+		
 		AlbumListScreen albumMusic = new AlbumListScreen();
 		musicRootController = new BaseController(this, musicModel, albumMusic);
 		
@@ -123,9 +115,22 @@ public class MainUIMidlet extends MIDlet {
 		albumMusicController.setNextController(musicListController);
 		albumMusic.setCommandListener(albumMusicController);
 		//#endif
+
+		// #ifdef includeVideo
+		// [NC] Added in the scenario 08
+
+		videoModel = new VideoAlbumData();
 		
-	
-	
+		AlbumListScreen albumVideo = new AlbumListScreen();
+		videoRootController = new BaseController(this, videoModel, albumVideo);
+		
+		MediaListController videoListController = new MediaListController(this, videoModel, albumVideo);
+		videoListController.setNextController(videoRootController);
+		
+		AlbumController albumVideoController = new AlbumController(this, videoModel, albumVideo);
+		albumVideoController.setNextController(videoListController);
+		albumVideo.setCommandListener(albumVideoController);
+		//#endif
 		
 		//#ifdef includeSmsFeature
 		/* [NC] Added in scenario 06 */
@@ -136,22 +141,59 @@ public class MainUIMidlet extends MIDlet {
 		new Thread(smsR).start();
 		//#endif
 		
-		// #if includeMMAPI && includePhotoAlbum
+		// #if (includeMMAPI && includePhotoAlbum)|| (includePhotoAlbum && includeVideo)
 		// [NC] Added in the scenario 07
-		SelectMediaController selectcontroller = new SelectMediaController(this, imageModel, musicModel, album,imageRootController,musicRootController);
+		SelectMediaController selectcontroller = new SelectMediaController(this, imageModel, album);
 		selectcontroller.setNextController(imageRootController);
+			
+		// #ifdef includePhotoAlbum
+		// [NC] Added in the scenario 08
+		selectcontroller.setImageAlbumData(imageModel);
+		selectcontroller.setImageController(imageRootController);
+		//#endif
 		
+		// #ifdef includeMMAPI
+		// [NC] Added in the scenario 08
+		selectcontroller.setMusicAlbumData(musicModel);
+		selectcontroller.setMusicController(musicRootController);
+		//#endif
+			
+		// #ifdef includeVideo
+		// [NC] Added in the scenario 08
+		selectcontroller.setVideoAlbumData(videoModel);
+		selectcontroller.setVideoController(videoRootController);
+		//#endif
+		
+		//#elif includeMMAPI && includeVideo
+		SelectMediaController selectcontroller2 = new SelectMediaController(this, musicModel, albumMusic);
+		selectcontroller.setNextController(musicRootController);
+	
+		// #ifdef includeMMAPI
+		// [NC] Added in the scenario 08
+		selectcontroller.setMusicAlbumData(musicModel);
+		selectcontroller.setMusicController(musicRootController);
+		//#endif
+		
+		// #ifdef includeVideo
+		// [NC] Added in the scenario 08
+		selectcontroller.setVideoAlbumData(videoModel);
+		selectcontroller.setVideoController(videoRootController);
+		//#endif
+		//#endif
+		
+		//#if (includeMMAPI && includePhotoAlbum)||(includeMMAPI && includeVideo) || (includeVideo && includePhotoAlbum)
 		SelectTypeOfMedia mainscreen = new SelectTypeOfMedia();
 		mainscreen.initMenu();
 		mainscreen.setCommandListener(selectcontroller);
 		Display.getDisplay(this).setCurrent(mainscreen);
 		ScreenSingleton.getInstance().setMainMenu(mainscreen);
-		//#elif includePhotoAlbum
+		//#elif includePhotoAlbum		
 		imageRootController.init(imageModel);
 		//#elif includeMMAPI
 		musicRootController.init(musicModel);
+		//#elif includeVideo
+		videoRootController.init(videoModel);
 		//#endif
-
 	}
 
 	/**

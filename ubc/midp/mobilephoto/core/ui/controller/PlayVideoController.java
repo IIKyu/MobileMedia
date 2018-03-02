@@ -1,5 +1,4 @@
-// #ifdef includeMMAPI
-// [NC] Added in the scenario 07
+//#ifdef includeVideo
 package ubc.midp.mobilephoto.core.ui.controller;
 
 import javax.microedition.lcdui.Alert;
@@ -18,36 +17,36 @@ import ubc.midp.mobilephoto.core.ui.datamodel.AlbumData;
 import ubc.midp.mobilephoto.core.ui.datamodel.MediaData;
 import ubc.midp.mobilephoto.core.ui.screens.AddMediaToAlbum;
 import ubc.midp.mobilephoto.core.ui.screens.AlbumListScreen;
-import ubc.midp.mobilephoto.core.ui.screens.PlayMediaScreen;
+import ubc.midp.mobilephoto.core.ui.screens.PlayVideoScreen;
 import ubc.midp.mobilephoto.core.util.Constants;
 
-public class MusicPlayController extends AbstractController{
+public class PlayVideoController extends AbstractController{
 	// #ifdef includeCopyPhoto
 	// [NC] Added in the scenario 07
 	private String mediaName;
 	//#endif
 	
-	private PlayMediaScreen pmscreen;
+	private PlayVideoScreen pmscreen;
 	
-	public MusicPlayController(MainUIMidlet midlet, AlbumData albumData,
-			List albumListScreen, PlayMediaScreen pmscreen) {
+	public PlayVideoController(MainUIMidlet midlet, AlbumData albumData,
+			List albumListScreen, PlayVideoScreen pmscreen) {
 		super(midlet, albumData, albumListScreen);
 		this.pmscreen = pmscreen;
 	}
 
 	public boolean handleCommand(Command command) {
 		String label = command.getLabel();
-		System.out.println( "<* MusicPlayController.handleCommand() *> " + label);
+		System.out.println( "<* PlayVideoController.handleCommand() *> " + label);
 
 		/** Case: Copy photo to a different album */
 		if (label.equals("Start")) {
-			pmscreen.startPlay();
+			pmscreen.startVideo();
 			return true;
 		}else if (label.equals("Stop")) {
-			pmscreen.pausePlay();
+			pmscreen.stopVideo();
 				return true;
 		}else if ((label.equals("Back"))||(label.equals("Cancel"))){
-			pmscreen.pausePlay();
+			pmscreen.stopVideo();
 			// [NC] Changed in the scenario 07: just the first line below to support generic AbstractController
 			((AlbumListScreen) getAlbumListScreen()).repaintListAlbum(getAlbumData().getAlbumNames());
 			setCurrentScreen( getAlbumListScreen() );
@@ -76,8 +75,6 @@ public class MusicPlayController extends AbstractController{
 				}
 				String albumname = ((AddMediaToAlbum) getCurrentScreen()).getPath();
 				getAlbumData().addMediaData(imageData, albumname); 
-			
-				
 			} catch (InvalidImageDataException e) {
 				Alert alert = null;
 				if (e instanceof ImagePathNotValidException)

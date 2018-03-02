@@ -8,8 +8,9 @@ import lancs.midp.mobilephoto.lib.exceptions.ImageNotFoundException;
 import lancs.midp.mobilephoto.lib.exceptions.PersistenceMechanismException;
 
 public class ImageAlbumData extends AlbumData {
+	
 	public ImageAlbumData() {
-		mediaAccessor = new ImageMediaAccessor();
+		mediaAccessor = new ImageMediaAccessor(this);
 	}
 	
 	/**

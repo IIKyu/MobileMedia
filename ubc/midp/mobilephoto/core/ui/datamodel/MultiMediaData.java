@@ -1,14 +1,15 @@
-// #ifdef includeMMAPI
+// #if includeMMAPI || includeVideo
 // [NC] Added in the scenario 07
 package ubc.midp.mobilephoto.core.ui.datamodel;
 
 public class MultiMediaData extends MediaData {
+	
 	private String typemedia;
-	public MultiMediaData(int foreignRecordId, String parentAlbumName,
-			String mediaLabel, String type) {
-		super(foreignRecordId, parentAlbumName, mediaLabel);
-		typemedia = type;
-	}
+	
+	/**
+	 * @param mdata
+	 * @param type
+	 */
 	public MultiMediaData(MediaData mdata, String type){
 		super(mdata.getForeignRecordId(), mdata.getParentAlbumName(), mdata.getMediaLabel());
 		super.setRecordId(mdata.getRecordId());
@@ -22,12 +23,18 @@ public class MultiMediaData extends MediaData {
 		this.typemedia = type;
 	}
 	
+	/**
+	 * @return
+	 */
 	public String getTypeMedia() {
 		return typemedia;
 	}
+	
+	/**
+	 * @param type
+	 */
 	public void setTypeMedia(String type) {
 		this.typemedia = type;
 	}
-
 }
 //#endif

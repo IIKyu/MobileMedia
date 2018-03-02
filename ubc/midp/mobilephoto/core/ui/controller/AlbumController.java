@@ -70,7 +70,7 @@ public class AlbumController extends AbstractController {
 			deleteConfAlert.setCommandListener(this);
 			return true;	
 		/**
-		 *  TODO [EF] I think this confirmation questions are complicating the implementation
+		 *  [EF] I think this confirmation questions are complicating the implementation
 		 *  [EF] How do you know that "Yes - Delete" is to delete Photo Album instead of Photo?
 		 *  Case: Yes delete Photo Album  **/
 		}else if (label.equals("Yes - Delete")) {
@@ -98,7 +98,6 @@ public class AlbumController extends AbstractController {
 					if (currentScreen.getFormType() == NewLabelScreen.NEW_ALBUM)
 						getAlbumData().createNewAlbum(currentScreen.getLabelName());
 					else if (currentScreen.getFormType() == NewLabelScreen.LABEL_PHOTO) {
-						
 					}
 				}
 			} catch (PersistenceMechanismException e) {

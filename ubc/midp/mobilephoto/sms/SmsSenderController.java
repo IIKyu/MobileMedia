@@ -56,12 +56,10 @@ public class SmsSenderController extends AbstractController {
 		
 		/** Case: ... **/
 		if (label.equals("Send Photo by SMS")) {
-
 		    networkScreen = new NetworkScreen("Reciever Details");
 			networkScreen.setCommandListener(this);
 	      	this.setCurrentScreen(networkScreen);
       		return true;
-	      	
 	      } else if (label.equals("Send Now")) {
 	      	
 	      	//Get the data from the currently selected image
@@ -77,8 +75,6 @@ public class SmsSenderController extends AbstractController {
 				Alert alert = new Alert( "Error", "It was not possible to recovery the selected image", null, AlertType.ERROR);
 		        alert.setTimeout(5000);
 			}
-		  	
-
 		  	System.out.println("SmsController::handleCommand - Sending bytes for image " + ii.getMediaLabel() + " with length: " + imageBytes.length);
 		  	
 			//Get the destination info - set some defaults just in case
@@ -95,8 +91,7 @@ public class SmsSenderController extends AbstractController {
 			smsS.setBinaryData(imageBytes);
 			new Thread(smsS).start();
       		return true;
-			
-	  
+
 	      } else if (label.equals("Cancel Send")) {
 	      	
 	      	//TODO: If they want to cancel sending the SMS message, send them back to main screen

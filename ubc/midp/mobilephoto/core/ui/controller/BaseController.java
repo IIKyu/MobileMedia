@@ -23,13 +23,6 @@ import ubc.midp.mobilephoto.core.util.Constants;
  */
 public class BaseController extends AbstractController {
     
-	// [EF] Attributes albumController and photoController were commented because 
-	// I'm not sure which one is the best solution: 
-	// [EF] (i) Declare controllers here and have only one instance or
-	// [EF] (ii) create controllerns when needed (current solution)
-//	private AlbumController albumController;
-//	private PhotoController photoController;
-	
 	/**
 	 * Pass a handle to the main Midlet for this controller
 	 * @param midlet
@@ -42,9 +35,7 @@ public class BaseController extends AbstractController {
 	 * Initialize the controller
 	 */
 	public void init(AlbumData model) {
-		
 		//SelectMediaController
-
 		
 		//Get all MobilePhoto defined albums from the record store
 		String[] albumNames = model.getAlbumNames();
@@ -62,8 +53,8 @@ public class BaseController extends AbstractController {
 		setCurrentScreen(getAlbumListScreen());
 	}
 
-    /* 
-     * TODO [EF] Why this method receives Displayable and never uses?
+    /* (non-Javadoc)
+     * @see ubc.midp.mobilephoto.core.ui.controller.ControllerInterface#handleCommand(javax.microedition.lcdui.Command)
      */
     public boolean handleCommand(Command command) {
 		String label = command.getLabel();
@@ -84,7 +75,7 @@ public class BaseController extends AbstractController {
 		} else if (label.equals("Back")) {
 			return goToPreviousScreen();
 
-			/** Case: Cancel the current screen and go back one* */
+		/** Case: Cancel the current screen and go back one* */
 		} else if (label.equals("Cancel")) {
 			return goToPreviousScreen();
 
@@ -95,8 +86,6 @@ public class BaseController extends AbstractController {
     }
     
     private boolean goToPreviousScreen() {
-
-    	
     	String currentScreenName = ScreenSingleton.getInstance().getCurrentScreenName();
     	System.out.println("<* BaseController.goToPreviousScreen() **>"+currentScreenName);
 	    if (currentScreenName != null){

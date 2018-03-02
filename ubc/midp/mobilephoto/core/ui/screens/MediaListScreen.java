@@ -25,6 +25,8 @@ public class MediaListScreen extends List {
 	// [NC] Added in the scenario 07: to support more than one screen purpose
 	public static final int SHOWPHOTO = 1;
 	public static final int PLAYMUSIC = 2;
+	public static final int PLAYVIDEO = 3;
+	
 	// #ifdef includePhotoAlbum
 	// [NC] Added in the scenario 07
 	public static final Command viewCommand = new Command("View", Command.ITEM, 1);
@@ -33,6 +35,21 @@ public class MediaListScreen extends List {
 	// #ifdef includeMMAPI
 	// [NC] Added in the scenario 07
 	public static final Command playCommand = new Command("Play", Command.ITEM, 1);
+	//#endif
+	
+	// #ifdef includeVideo
+	// [NC] Added in the scenario 07
+	public static final Command playVideoCommand = new Command("Play Video", Command.ITEM, 1);
+	//#endif
+	
+	// #ifdef captureVideo
+	// [NC] Added in the scenario 08
+	public static final Command captureVideoCommand = new Command("Capture Video", Command.ITEM, 1);
+	//#endif
+	
+	// #ifdef capturePhoto
+	// [NC] Added in the scenario 08
+	public static final Command capturePhotoCommand = new Command("Capture Photo", Command.ITEM, 1);
 	//#endif
 	
 	public static final Command addCommand = new Command("Add", Command.ITEM, 1);
@@ -66,7 +83,6 @@ public class MediaListScreen extends List {
 	 * Initialize the menu items for this screen
 	 */
 	public void initMenu() {
-		
 		//Add the core application commands always
 		// [NC] Added in the scenario 07: to support more than one screen purpose
 		// #ifdef includePhotoAlbum
@@ -75,14 +91,31 @@ public class MediaListScreen extends List {
 			this.addCommand(viewCommand);
 		//#endif
 		
-		// #if includeMMAPI && includePhotoAlbum
-		// [NC] Added in the scenario 07	
-		else
-		//#endif	
-			
-		// #ifdef includeMMAPI
-		// [NC] Added in the scenario 07	
-		this.addCommand(playCommand);
+		// #if includeMMAPI
+		// [NC] Added in the scenario 07
+		if (typeOfScreen == PLAYMUSIC)
+			this.addCommand(playCommand);
+		//#endif
+		
+		// #if includeVideo
+		// [NC] Added in the scenario 08
+		if (typeOfScreen == PLAYVIDEO)
+			{this.addCommand(playVideoCommand);
+			}
+		//#endif
+		
+		// #if captureVideo
+		// [NC] Added in the scenario 08
+		if (typeOfScreen == PLAYVIDEO)
+			{		this.addCommand(captureVideoCommand);
+			}
+		//#endif
+
+		// #if capturePhoto
+		// [NC] Added in the scenario 08
+		if (typeOfScreen == SHOWPHOTO)
+			{		this.addCommand(capturePhotoCommand);
+			}
 		//#endif
 		
 		this.addCommand(addCommand);
@@ -102,11 +135,5 @@ public class MediaListScreen extends List {
 		// #endif
 
 		this.addCommand(backCommand);
-
-		//Add the optional feature menu items only if they are specified in 
-		//the xxxBuild.properties file using the 'preprocessor.symbols' value
-		
-	
 	}
-	
 }

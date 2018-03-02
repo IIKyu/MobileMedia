@@ -2,7 +2,6 @@ package ubc.midp.mobilephoto.core.ui.screens;
 
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Form;
-import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.TextField;
 
 public class AddMediaToAlbum extends Form {
@@ -15,11 +14,10 @@ public class AddMediaToAlbum extends Form {
 	TextField itemtype = new TextField("Type of media", "", 20, TextField.ANY);
 	//#endif
 	
-	// #ifdef includeSmsFeature
-	/* [NC] Added in scenario 06 */
-	Image image = null;
+	// #if includeSmsFeature || capturePhoto ||captureVideo 
+	/* [NC] Added in scenario 06  and changed in scenario 8*/
+	 byte[] CapturedMedia = null;
 	//#endif	
-	
 	
 	Command ok;
 	Command cancel;
@@ -63,16 +61,6 @@ public class AddMediaToAlbum extends Form {
 	public void setLabePath(String label) {
 		itempathtxt.setLabel(label);
 	}
-	// #ifdef includeSmsFeature
-	/* [NC] Added in scenario 06 */
-	public Image getImage() {
-		return image;
-	}
-
-	public void setImage(Image image) {
-		this.image = image;
-	}
-	//#endif
 	
 	// #ifdef includeMMAPI
 	// [NC] Added in the scenario 07
@@ -80,4 +68,18 @@ public class AddMediaToAlbum extends Form {
 		return itemtype.getString();
 	}
 	//#endif
+	
+	// #if captureVideo || includeSmsFeature || capturePhoto
+	// [NC] Added in the scenario 08
+	// Add in scenario 6 as getImage and setImage. Due to some problems to convert 
+	// Image to byte[], we decided to provide a byte[] rather than Image.
+	public byte[] getCapturedMedia() {
+		return CapturedMedia;
+	}
+
+	public void setCapturedMedia(byte[] capturedMedia) {
+		CapturedMedia = capturedMedia;
+	}
+	//#endif
+
 }

@@ -62,11 +62,8 @@ public class SmsMessaging extends BaseMessaging {
 			address = smsProtocolPrefix + address + ":" + smsSendPort+1;
 		
 		System.out.println("SmsMessaging::sendImage: Sending binary message to: " + address);
-
 		MessageConnection smsconn = null;
-		
 		try {
-			
 			//Open the message connection.
 			smsconn = (MessageConnection) Connector.open(address);
 			
@@ -119,36 +116,37 @@ public class SmsMessaging extends BaseMessaging {
 		}
 		
 		// Check for sms connection
-		    
-		    //TODO: Use MessageListener interface to handle incoming messages,
-		    //instead of blocking on the thread
-		    
-		    //This will block until a message is received
-			msg = smsConn.receive();
-			
-			if (msg != null) {
-				senderAddress = msg.getAddress();
-				System.out.println("From: " + senderAddress);
-				
-				//Handle Text Message
-				if (msg instanceof TextMessage) {
-					String incomingMessage = ((TextMessage) msg).getPayloadText();
-					System.out.println("Incoming SMS Message with Payload:" + incomingMessage);
-					
-				//Handle Binary Message
-				} else {
-					System.out.println("Incoming Binary SMS Message...");
-					StringBuffer buf = new StringBuffer();
-					receivedData = ((BinaryMessage) msg).getPayloadData();					
-					System.out.println("SmsMessaging::receiveImage: sender address = " + senderAddress.toString());
-					System.out.println("SmsMessaging::receiveImage: buffer length = " + buf.length() + " contents = " + buf.toString());
-				}
+
+		// TODO: Use MessageListener interface to handle incoming messages,
+		// instead of blocking on the thread
+
+		// This will block until a message is received
+		System.out.println("DEBUG 1: before smsConn.receive():" + smsConn);
+		msg = smsConn.receive();
+		System.out.println("DEBUG 2: after smsConn.receive()");
+
+		if (msg != null) {
+			senderAddress = msg.getAddress();
+			System.out.println("From: " + senderAddress);
+
+			// Handle Text Message
+			if (msg instanceof TextMessage) {
+				String incomingMessage = ((TextMessage) msg).getPayloadText();
+				System.out.println("Incoming SMS Message with Payload:" + incomingMessage);
+
+				// Handle Binary Message
+			} else {
+				System.out.println("Incoming Binary SMS Message...");
+				StringBuffer buf = new StringBuffer();
+				receivedData = ((BinaryMessage) msg).getPayloadData();
+				System.out.println("SmsMessaging::receiveImage: sender address = " + senderAddress.toString());
+				System.out.println("SmsMessaging::receiveImage: buffer length = " + buf.length() + " contents = "
+						+ buf.toString());
 			}
-	
-		
+		}
 		System.out.println("SmsMessaging::receiveImage() - Finish");
 		
-		//Return success if we reached this far
+		// Return success if we reached this far
 		return receivedData;
 	}
 
@@ -156,7 +154,6 @@ public class SmsMessaging extends BaseMessaging {
 	 * @see ubc.midp.mobilephoto.core.comms.BaseMessaging#cleanUpConnections()
 	 */
 	public void cleanUpConnections(MessageConnection smsConn) {
-		
 		//Cleanup the connection
 		if (smsConn != null) {
 			try {
@@ -166,11 +163,9 @@ public class SmsMessaging extends BaseMessaging {
 				ioe.printStackTrace();
 			}
 		}
-		
 	}
 	
 	public void cleanUpReceiverConnections() {
-		
 		//Cleanup the connection
 		if (smsConn != null) {
 			try {
@@ -181,38 +176,43 @@ public class SmsMessaging extends BaseMessaging {
 				ioe.printStackTrace();
 			}
 		}
-		
 	}
+	
 	/**
 	 * @return Returns the destinationPhoneNumber.
 	 */
 	public String getDestinationPhoneNumber() {
 		return destinationPhoneNumber;
 	}
+	
 	/**
 	 * @param destinationPhoneNumber The destinationPhoneNumber to set.
 	 */
 	public void setDestinationPhoneNumber(String destinationPhoneNumber) {
 		this.destinationPhoneNumber = destinationPhoneNumber;
 	}
+	
 	/**
 	 * @return Returns the smsReceivePort.
 	 */
 	public String getSmsReceivePort() {
 		return smsReceivePort;
 	}
+	
 	/**
 	 * @param smsReceivePort The smsReceivePort to set.
 	 */
 	public void setSmsReceivePort(String smsReceivePort) {
 		this.smsReceivePort = smsReceivePort;
 	}
+	
 	/**
 	 * @return Returns the smsSendPort.
 	 */
 	public String getSmsSendPort() {
 		return smsSendPort;
 	}
+	
 	/**
 	 * @param smsSendPort The smsSendPort to set.
 	 */

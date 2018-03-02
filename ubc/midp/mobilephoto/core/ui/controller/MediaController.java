@@ -27,21 +27,41 @@ import ubc.midp.mobilephoto.core.ui.MainUIMidlet;
 import ubc.midp.mobilephoto.core.ui.datamodel.AlbumData;
 
 
+
 //#ifdef includePhotoAlbum
 //[NC] Added in the scenario 07
 import ubc.midp.mobilephoto.core.ui.datamodel.ImageAlbumData;
 import javax.microedition.lcdui.Image;
 //#endif
 import ubc.midp.mobilephoto.core.ui.datamodel.MediaData;
+//#if includeVideo
+//[NC] Added in the scenario 08
+import ubc.midp.mobilephoto.core.ui.datamodel.VideoAlbumData;
+//#endif
+
+//#if includeVideo || includeMMAPI
+//[NC] Added in the scenario 08
+import ubc.midp.mobilephoto.core.ui.datamodel.MultiMediaData;
+//#endif
+
 //#ifdef includeMMAPI
 //[NC] Added in the scenario 07
-import ubc.midp.mobilephoto.core.ui.datamodel.MultiMediaData;
 import ubc.midp.mobilephoto.core.ui.datamodel.MusicAlbumData;
 import ubc.midp.mobilephoto.core.ui.screens.PlayMediaScreen;
 //#endif
 import ubc.midp.mobilephoto.core.ui.screens.AddMediaToAlbum;
 import ubc.midp.mobilephoto.core.ui.screens.AlbumListScreen;
+//#if captureVideo || capturePhoto 
+//[NC] Added in the scenario 08
+import ubc.midp.mobilephoto.core.ui.screens.CaptureVideoScreen;
+//#endif
+
 import ubc.midp.mobilephoto.core.ui.screens.NewLabelScreen;
+
+//#ifdef includeVideo
+//[NC] Added in the scenario 08
+import ubc.midp.mobilephoto.core.ui.screens.PlayVideoScreen;
+//#endif
 
 //#ifdef includePhotoAlbum
 //[NC] Added in the scenario 07
@@ -62,6 +82,7 @@ public class MediaController extends MediaListController {
 
 	private MediaData media;
 	private NewLabelScreen screen;
+
 
 	public MediaController (MainUIMidlet midlet, AlbumData albumData, AlbumListScreen albumListScreen) {
 		super(midlet, albumData, albumListScreen);
@@ -100,9 +121,45 @@ public class MediaController extends MediaListController {
 				String selectedMediaName = getSelectedMediaName();
 				return playMultiMedia(selectedMediaName);		
 
-		/** Case: Add photo * */
 		} 
 		//#endif 
+		
+		// #ifdef includeVideo
+		// [NC] Added in the scenario 08
+		else if (label.equals("Play Video")) {
+				String selectedMediaName = getSelectedMediaName();
+				return playVideoMedia(selectedMediaName);		
+
+		}
+		//#endif
+		
+		// #ifdef captureVideo
+		// [NC] Added in the scenario 08
+		else if (label.equals("Capture Video")) {
+			
+			CaptureVideoScreen playscree = new CaptureVideoScreen(midlet, CaptureVideoScreen.CAPTUREVIDEO);
+			playscree.setVisibleVideo();
+			VideoCaptureController controller = new VideoCaptureController(midlet, getAlbumData(), (AlbumListScreen) getAlbumListScreen(), playscree);
+			this.setNextController(controller);
+			playscree.setCommandListener(this);
+			return true;		
+		}
+		//#endif
+
+		// #ifdef capturePhoto
+		// [NC] Added in the scenario 08
+		else if (label.equals("Capture Photo")) {
+			
+			CaptureVideoScreen playscree = new CaptureVideoScreen(midlet, CaptureVideoScreen.CAPTUREPHOTO);
+			playscree.setVisibleVideo();
+			PhotoViewController controller = new PhotoViewController(midlet, getAlbumData(), (AlbumListScreen) getAlbumListScreen(), "New photo");
+			controller.setCpVideoScreen(playscree);
+			this.setNextController(controller);
+			playscree.setCommandListener(this);
+			return true;		
+		}
+		//#endif 
+		
 		else if (label.equals("Save Item")) {
 			try {
 				getAlbumData().addNewMediaToAlbum(((AddMediaToAlbum) getCurrentScreen()).getItemName(), 
@@ -143,7 +200,7 @@ public class MediaController extends MediaListController {
 			}
 			//#endif
 			return goToPreviousScreen();
-			/** Case: Delete selected Photo from recordstore * */
+		/** Case: Delete selected Photo from recordstore * */
 		} else if (label.equals("Delete")) {
 			String selectedMediaName = getSelectedMediaName();
 			try {
@@ -268,7 +325,6 @@ public class MediaController extends MediaListController {
 			return goToPreviousScreen();
 
 		}
-
 		return false;
 	}
 
@@ -311,6 +367,45 @@ public class MediaController extends MediaListController {
 	//#endif
 	
 	
+	// #ifdef includeVideo
+	// [NC] Added in the scenario 07
+	private boolean playVideoMedia(String selectedMediaName) {
+		InputStream storedMusic = null;
+		try {
+			MediaData mymedia = getAlbumData().getMediaInfo(selectedMediaName);
+			
+			// #ifdef includeCountViews
+			// [EF] Added in the scenario 02
+			incrementCountViews(selectedMediaName);
+			//#endif
+			if (mymedia instanceof MultiMediaData)
+			{
+				storedMusic = ((VideoAlbumData) getAlbumData()).getVideoFromRecordStore(getCurrentStoreName(), selectedMediaName);
+				PlayVideoScreen playscree = new PlayVideoScreen(midlet,storedMusic, ((MultiMediaData)mymedia).getTypeMedia(),this);
+				playscree.setVisibleVideo();
+				PlayVideoController controller = new PlayVideoController(midlet, getAlbumData(), (AlbumListScreen) getAlbumListScreen(), playscree);
+				// #ifdef includeCopyPhoto
+			  	// [NC] Added in the scenario 07
+				controller.setMediaName(selectedMediaName);
+				//#endif
+				
+				this.setNextController(controller);
+			}
+			return true;
+		} catch (ImageNotFoundException e) {
+			Alert alert = new Alert( "Error", "The selected item was not found in the mobile device", null, AlertType.ERROR);
+			Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+		    return false;
+		} 
+		catch (PersistenceMechanismException e) {
+			Alert alert = new Alert( "Error", "The mobile database can open this item 1", null, AlertType.ERROR);
+			Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+			return false;
+		}
+	
+	}
+	//#endif
+	
 	// #ifdef includeCountViews
 	// [EF] Added in the scenario 02
 	private void incrementCountViews(String selectedImageName) {
@@ -333,8 +428,7 @@ public class MediaController extends MediaListController {
 	// #endif
 
 	void updateMedia(MediaData media) throws InvalidImageDataException, PersistenceMechanismException {
-			getAlbumData().updateMediaInfo(media, media);
-	
+		getAlbumData().updateMediaInfo(media, media);
 	}
 	
     /**
@@ -398,7 +492,7 @@ public class MediaController extends MediaListController {
 	//#endif
 
    /**
-    * TODO [EF] update this method or merge with method of super class.
+    * [EF] update this method or merge with method of super class.
      * Go to the previous screen
 	 */
     private boolean goToPreviousScreen() {
@@ -434,12 +528,17 @@ public class MediaController extends MediaListController {
 		return media;
 	}
 
+	/**
+	 * @param screen
+	 */
 	public void setScreen(NewLabelScreen screen) {
 		this.screen = screen;
 	}
 
+	/**
+	 * @return
+	 */
 	public NewLabelScreen getScreen() {
 		return screen;
 	}
-
 }

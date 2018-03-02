@@ -1,5 +1,5 @@
-// #ifdef includeMMAPI
-// [NC] Added in the scenario 07
+// #ifdef includeVideo
+// [NC] Added in the scenario 08
 package ubc.midp.mobilephoto.core.ui.datamodel;
 
 import java.io.ByteArrayInputStream;
@@ -8,20 +8,13 @@ import java.io.InputStream;
 import lancs.midp.mobilephoto.lib.exceptions.ImageNotFoundException;
 import lancs.midp.mobilephoto.lib.exceptions.PersistenceMechanismException;
 
-public class MusicAlbumData extends AlbumData {
+public class VideoAlbumData extends AlbumData{
 	
-	public MusicAlbumData() {
-		mediaAccessor = new MusicMediaAccessor(this);
+	public VideoAlbumData() {
+		mediaAccessor = new VideoMediaAccessor(this);
 	}
 	
-	/**
-	 * @param recordStore
-	 * @param musicName
-	 * @return
-	 * @throws ImageNotFoundException
-	 * @throws PersistenceMechanismException
-	 */
-	public InputStream getMusicFromRecordStore(String recordStore, String musicName) throws ImageNotFoundException, PersistenceMechanismException {
+	public InputStream getVideoFromRecordStore(String recordStore, String musicName) throws ImageNotFoundException, PersistenceMechanismException {
 		MediaData mediaInfo = null;
 		mediaInfo = mediaAccessor.getMediaInfo(musicName);
 		//Find the record ID and store name of the image to retrieve
@@ -30,6 +23,7 @@ public class MusicAlbumData extends AlbumData {
 		//Now, load the image (on demand) from RMS and cache it in the hashtable
 		byte[] musicData = (mediaAccessor).loadMediaBytesFromRMS(album, mediaId);
 		return new ByteArrayInputStream(musicData);
+
 	}
 }
 //#endif

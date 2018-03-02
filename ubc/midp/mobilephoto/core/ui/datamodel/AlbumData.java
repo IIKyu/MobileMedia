@@ -3,8 +3,6 @@
  */
 package ubc.midp.mobilephoto.core.ui.datamodel;
 
-import javax.microedition.lcdui.Image;
-
 import lancs.midp.mobilephoto.lib.exceptions.ImageNotFoundException;
 import lancs.midp.mobilephoto.lib.exceptions.InvalidImageDataException;
 import lancs.midp.mobilephoto.lib.exceptions.InvalidPhotoAlbumNameException;
@@ -51,15 +49,19 @@ public abstract class AlbumData {
 	 * @throws PersistenceMechanismException 
 	 */
 	public MediaData[] getMedias(String recordName) throws UnavailablePhotoAlbumException  {
+
 		MediaData[] result;
 		try {
 			result = mediaAccessor.loadMediaDataFromRMS(recordName);
 		} catch (PersistenceMechanismException e) {
 			throw new UnavailablePhotoAlbumException(e);
+			
 		} catch (InvalidImageDataException e) {
 			throw new UnavailablePhotoAlbumException(e);
 		}
+
 		return result;
+
 	}
 
 	/**
@@ -90,7 +92,7 @@ public abstract class AlbumData {
 	public void addNewMediaToAlbum(String label, String path, String album) throws InvalidImageDataException, PersistenceMechanismException{
 		mediaAccessor.addMediaData(label, path, album);
 	}
-	
+
 	// #ifdef includeCopyPhoto
 	/**
 	 * @param mediaData
@@ -100,20 +102,6 @@ public abstract class AlbumData {
 	 */
 	public void addMediaData(MediaData mediaData, String albumname) throws InvalidImageDataException, PersistenceMechanismException {
 		mediaAccessor.addMediaData(mediaData, albumname);
-	}
-	// #endif
-
-	// #ifdef includeSmsFeature
-	/* [NC] Added in scenario 06 */
-	/**
-	 * @param photoname
-	 * @param imgdata
-	 * @param albumname
-	 * @throws InvalidImageDataException
-	 * @throws PersistenceMechanismException
-	 */
-	public void addImageData(String photoname, Image imgdata, String albumname) throws InvalidImageDataException, PersistenceMechanismException {
-		if (mediaAccessor instanceof ImageMediaAccessor) ((ImageMediaAccessor)mediaAccessor).addImageData(photoname, imgdata, albumname);
 	}
 	// #endif
 	
@@ -141,7 +129,6 @@ public abstract class AlbumData {
 	}
 
 	/**
-	 * [EF] Added in order to have access to ImageData
 	 * @param imageName
 	 * @return
 	 * @throws ImageNotFoundException
@@ -149,7 +136,7 @@ public abstract class AlbumData {
 	public MediaData getMediaInfo(String imageName) throws ImageNotFoundException {
 		return mediaAccessor.getMediaInfo(imageName);
 	}
-
+	
 	/**
 	 * @param recordName
 	 * @return
@@ -180,4 +167,35 @@ public abstract class AlbumData {
 	public byte[] loadMediaBytesFromRMS(String recordName, int recordId) throws PersistenceMechanismException {
 		return mediaAccessor.loadMediaBytesFromRMS(recordName, recordId);
 	}
+	
+	// #ifdef includeVideo
+	/**
+	 * @param videoname
+	 * @param albumname
+	 * @param video
+	 * @throws InvalidImageDataException
+	 * @throws PersistenceMechanismException
+	 */
+	public void addVideoData(String videoname, String albumname, byte[] video)
+		throws InvalidImageDataException, PersistenceMechanismException {
+		if (mediaAccessor instanceof VideoMediaAccessor)
+			((VideoMediaAccessor)mediaAccessor).addVideoData(videoname, albumname, video);
+	}
+	//#endif
+	
+	// #if includeSmsFeature || capturePhoto
+	/* [NC] Added in scenario 06 */
+	/**
+	 * @param photoname
+	 * @param imgdata
+	 * @param albumname
+	 * @throws InvalidImageDataException
+	 * @throws PersistenceMechanismException
+	 */
+	public void addImageData(String photoname, byte[] imgdata, String albumname)
+		throws InvalidImageDataException, PersistenceMechanismException {
+		if (mediaAccessor instanceof ImageMediaAccessor)
+			((ImageMediaAccessor)mediaAccessor).addImageData(photoname, imgdata, albumname);
+	}
+	//#endif
 }

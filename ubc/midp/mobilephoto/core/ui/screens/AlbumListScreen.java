@@ -18,10 +18,11 @@ import javax.microedition.lcdui.List;
  * 
  */
 public class AlbumListScreen extends List {
-	//#if includeMMAPI && includePhotoAlbum
-	//[NC] Added in the scenario 07
+	
+	//#if (includeMMAPI && includePhotoAlbum)||(includeMMAPI && includeVideo) || (includeVideo && includePhotoAlbum)
+	//[NC] Added in the scenario 07 and changed in scenario 8
 	public static final Command exitCommand = new Command("Back", Command.STOP, 2);
-	//#elif includePhotoAlbum || includeMMAPI
+	//#elif includePhotoAlbum || includeMMAPI || includeVideo
 	//public static final Command exitCommand = new Command("Exit", Command.STOP, 2);
 	//#endif
 	public static final Command selectCommand = new Command("Select", Command.ITEM, 1);
@@ -29,7 +30,6 @@ public class AlbumListScreen extends List {
 	public static final Command deleteAlbumCommand = new Command("Delete Album", Command.ITEM, 1);
 	public static final Command resetCommand = new Command("Reset", Command.ITEM, 1);
 	
-
 	/**
 	 * Constructor
 	 */
@@ -42,9 +42,7 @@ public class AlbumListScreen extends List {
 	 * 
 	 */
 	public void initMenu() {
-		//#if includeMMAPI || includePhotoAlbum
 		this.addCommand(exitCommand);
-		//#endif
 		this.addCommand(selectCommand);
 		this.addCommand(createAlbumCommand);
 		this.addCommand(deleteAlbumCommand);

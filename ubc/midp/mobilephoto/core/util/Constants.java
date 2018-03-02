@@ -39,5 +39,4 @@ public class Constants {
 	//# public static final int SCREEN_HEIGHT = 176;
 	//#
 	//#endif
-
 }

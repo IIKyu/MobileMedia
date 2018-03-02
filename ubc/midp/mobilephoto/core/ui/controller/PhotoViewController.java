@@ -6,7 +6,7 @@
  * Date: 22 Jul 2007
  * 
  */
-// #if includeCopyPhoto || includeSmsFeature
+// #if includeCopyPhoto || includeSmsFeature || capturePhoto
 
 package ubc.midp.mobilephoto.core.ui.controller;
 
@@ -14,7 +14,6 @@ import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Display;
-import javax.microedition.lcdui.Image;
 import javax.microedition.rms.RecordStoreFullException;
 
 import lancs.midp.mobilephoto.lib.exceptions.ImageNotFoundException;
@@ -26,9 +25,9 @@ import ubc.midp.mobilephoto.core.ui.datamodel.AlbumData;
 import ubc.midp.mobilephoto.core.ui.datamodel.MediaData;
 import ubc.midp.mobilephoto.core.ui.screens.AddMediaToAlbum;
 import ubc.midp.mobilephoto.core.ui.screens.AlbumListScreen;
+import ubc.midp.mobilephoto.core.ui.screens.CaptureVideoScreen;
 import ubc.midp.mobilephoto.core.ui.screens.PhotoViewScreen;
 import ubc.midp.mobilephoto.core.util.Constants;
-
 /**
  * @author Eduardo Figueiredo
  * [EF] Added in Scenario 05
@@ -36,6 +35,11 @@ import ubc.midp.mobilephoto.core.util.Constants;
 public class PhotoViewController extends AbstractController {
 
 	String imageName = "";
+	
+	// #ifdef capturePhoto
+	// [NC] Added in the scenario 08
+	CaptureVideoScreen cpVideoScreen = null;
+	//#endif
 	
 	/**
 	 * @param midlet
@@ -66,7 +70,7 @@ public class PhotoViewController extends AbstractController {
 			// #ifdef includeSmsFeature
 			/* [NC] Added in scenario 06 */
 			if (((PhotoViewScreen)this.getCurrentScreen()).isFromSMS())
-				{copyPhotoToAlbum.setImage(((PhotoViewScreen)this.getCurrentScreen()).getImage());}
+				{copyPhotoToAlbum.setCapturedMedia(((PhotoViewScreen)this.getCurrentScreen()).getImage());}
 			//#endif	
 			
 	        Display.getDisplay(midlet).setCurrent(copyPhotoToAlbum);
@@ -78,11 +82,11 @@ public class PhotoViewController extends AbstractController {
 		else if (label.equals("Save Item")) {
 			try {
 				MediaData imageData = null;	
-				// #ifdef includeSmsFeature
-				/* [NC] Added in scenario 06 */
-				Image img = ((AddMediaToAlbum)this.getCurrentScreen()).getImage();
+				// #if includeSmsFeature || capturePhoto
+				/* [NC] Added in scenario 06 and changed in scenario 8 */
+				byte[] imgByte = ((AddMediaToAlbum)this.getCurrentScreen()).getCapturedMedia();
 				
-				if (img == null)
+				if (imgByte.length == 0)
 				//#endif
 				{
 					try {
@@ -92,27 +96,26 @@ public class PhotoViewController extends AbstractController {
 						Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
 					}
 				}
+				
+				
 				String photoname = ((AddMediaToAlbum) getCurrentScreen()).getItemName();
 				String albumname = ((AddMediaToAlbum) getCurrentScreen()).getPath();
 				
-				// #ifdef includeSmsFeature
-				/* [NC] Added in scenario 06 */
-				if (img != null)
-					getAlbumData().addImageData(photoname, img, albumname);
+				// #if includeSmsFeature || capturePhoto
+				/* [NC] Added in scenario 06 and changed in scenario 8*/
+				if (imgByte.length > 0)
+					getAlbumData().addImageData(photoname, imgByte, albumname);
 				// #endif 
 				
-				// #if includeCopyPhoto && includeSmsFeature
-				/* [NC] Added in scenario 06 */
-				if (img == null)
+				// #if includeCopyPhoto && (includeSmsFeature || capturePhoto)
+				/* [NC] Added in scenario 06 and changed in scenario 8*/
+				if (imgByte.length == 0)
 				//#endif
 					
 				// #if includeCopyPhoto 
 				/* [NC] Added in scenario 06 */
-					getAlbumData().addMediaData(imageData, albumname); 
+				getAlbumData().addMediaData(imageData, albumname); 
 				// #endif 
-				
-			
-				
 			} catch (InvalidImageDataException e) {
 				Alert alert = null;
 				if (e instanceof ImagePathNotValidException)
@@ -130,14 +133,33 @@ public class PhotoViewController extends AbstractController {
 					alert = new Alert("Error", "The mobile database can not add a new photo", null, AlertType.ERROR);
 				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
 			}
-			//((PhotoController)this.getNextController()).showImageList(ScreenSingleton.getInstance().getCurrentStoreName(), false, false);
-		    //ScreenSingleton.getInstance().setCurrentScreenName(Constants.IMAGELIST_SCREEN);
 			// [NC] Changed in the scenario 07: just the first line below to support generic AbstractController
 			((AlbumListScreen) getAlbumListScreen()).repaintListAlbum(getAlbumData().getAlbumNames());
 			setCurrentScreen( getAlbumListScreen() );
 			ScreenSingleton.getInstance().setCurrentScreenName(Constants.ALBUMLIST_SCREEN);
 			return true;
-		}else if ((label.equals("Cancel")) || (label.equals("Back"))){
+		}
+		// #ifdef capturePhoto
+		// [NC] Added in the scenario 08	
+		else if (label.equals("Take photo")){
+			System.out.println("Olha para a captura"+cpVideoScreen);
+			byte[] newfoto = cpVideoScreen.takePicture();
+			System.out.println("Obteve a imagem");
+			AddMediaToAlbum copyPhotoToAlbum = new AddMediaToAlbum("Copy Photo to Album");
+			System.out.println("Crio a screen");
+			copyPhotoToAlbum.setItemName("New picture");
+			copyPhotoToAlbum.setLabePath("Copy to Album:");
+			copyPhotoToAlbum.setCommandListener(this);
+			
+			copyPhotoToAlbum.setCapturedMedia(newfoto);
+			System.out.println("Definiu a imagem");
+	        Display.getDisplay(midlet).setCurrent(copyPhotoToAlbum);
+			
+			return true;
+
+		}
+		//#endif
+		else if ((label.equals("Cancel")) || (label.equals("Back"))){
 			// [NC] Changed in the scenario 07: just the first line below to support generic AbstractController
 			((AlbumListScreen) getAlbumListScreen()).repaintListAlbum(getAlbumData().getAlbumNames());
 			setCurrentScreen( getAlbumListScreen() );
@@ -147,5 +169,16 @@ public class PhotoViewController extends AbstractController {
 		
 		return false;
 	}
+	
+	// #ifdef capturePhoto
+	// [NC] Added in the scenario 08
+	public CaptureVideoScreen getCpVideoScreen() {
+		return cpVideoScreen;
+	}
+
+	public void setCpVideoScreen(CaptureVideoScreen cpVideoScreen) {
+		this.cpVideoScreen = cpVideoScreen;
+	}
+	//#endif
 }
 //#endif

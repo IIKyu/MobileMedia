@@ -7,12 +7,10 @@
  * 
  */
 package ubc.midp.mobilephoto.core.ui.controller;
-//#if includeMMAPI && includePhotoAlbum
-//[NC] Added in the scenario 07
+//#if (includeMMAPI && includePhotoAlbum)||(includeMMAPI && includeVideo) || (includeVideo && includePhotoAlbum)
+//[NC] Added in the scenario 07 and changed in scenario 8
 import ubc.midp.mobilephoto.core.ui.screens.SelectTypeOfMedia;
 //#endif
-
-
 
 /**
  * @author Eduardo Figueiredo
@@ -30,8 +28,8 @@ public class ScreenSingleton {
 	//Ie. name of the currently active J2ME record store
 	private String currentStoreName = "My Photo Album";
 	
-	// #if includeMMAPI && includePhotoAlbum
-	// [NC] Added in the scenario 07
+	// #if (includeMMAPI && includePhotoAlbum)||(includeMMAPI && includeVideo) || (includeVideo && includePhotoAlbum)
+	// [NC] Added in the scenario 07 and changed in scenario 8
 	private SelectTypeOfMedia mainscreen;
 	
 	public SelectTypeOfMedia getMainMenu(){

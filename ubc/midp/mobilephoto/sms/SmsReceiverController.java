@@ -14,6 +14,7 @@ import ubc.midp.mobilephoto.core.ui.screens.PhotoViewScreen;
 import ubc.midp.mobilephoto.core.util.Constants;
 
 public class SmsReceiverController extends AbstractController {
+	
 	byte[] incomingImageData;
 	
 	public SmsReceiverController(MainUIMidlet midlet, AlbumData albumData, AlbumListScreen albumListScreen) {
@@ -27,17 +28,16 @@ public class SmsReceiverController extends AbstractController {
 	 */
 
 	public boolean handleCommand(Command c) {
-
 		String label = c.getLabel();
       	System.out.println("SmsReceiverController::handleCommand: " + label);
 		
-		   /** Case: ... **/
+		 /** Case: Accept Photo **/
       	if (label.equals("Accept Photo")) {
-	
-      	
+	 	
 	      	Image image = Image.createImage(incomingImageData, 0, incomingImageData.length);
-	       	Image copy = Image.createImage(image.getWidth(), image.getHeight()); 
-	     	PhotoViewScreen canv = new PhotoViewScreen(copy);
+	     	PhotoViewScreen canv = new PhotoViewScreen(image);
+	     	//[NC] Changed in scenario 08 to support bytes
+	     	canv.setImage(incomingImageData);
 			canv.setFromSMS(true);
 			// [NC] Changed in the scenario 07: just the first line below to support generic AbstractController
 			canv.setCommandListener(new PhotoViewController(this.midlet, getAlbumData(), (AlbumListScreen) getAlbumListScreen(), "NoName"));
@@ -66,6 +66,7 @@ public class SmsReceiverController extends AbstractController {
 	      
   		return false;
 	}
+	
 	public void setIncommingData(byte[] incomingImageData){
 		this.incomingImageData = incomingImageData;
 	}

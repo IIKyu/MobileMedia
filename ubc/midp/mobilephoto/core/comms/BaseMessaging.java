@@ -21,22 +21,9 @@ import javax.wireless.messaging.MessageConnection;
 public abstract class BaseMessaging {
 
 	public abstract boolean sendImage(byte[] imageData);
+	
 	public abstract byte[] receiveImage() throws InterruptedIOException, IOException;
+	
 	public abstract void cleanUpConnections(MessageConnection conn);
 	
-
-	/**
-	 * @return Returns the listenPort.
-	 */
-/*	public String getListenPort() {
-		return listenPort;
-	}
-	
-	/**
-	 * @param listenPort The listenPort to set.
-	 *
-	public void setListenPort(String listenPort) {
-		this.listenPort = listenPort;
-	}
-*/
 }

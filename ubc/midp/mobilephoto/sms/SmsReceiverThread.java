@@ -13,14 +13,12 @@ import ubc.midp.mobilephoto.core.ui.MainUIMidlet;
 import ubc.midp.mobilephoto.core.ui.datamodel.AlbumData;
 import ubc.midp.mobilephoto.core.ui.screens.AlbumListScreen;
 
-
 /**
  * 
  */
 public class SmsReceiverThread implements Runnable { //extends BaseThread {
 	
 	SmsReceiverController controller = null;
-
 		
 	String[] connections; 		//Connections detected at start up.
 	String smsPort; 			//The port on which we listen for SMS messages
@@ -49,7 +47,6 @@ public class SmsReceiverThread implements Runnable { //extends BaseThread {
 	 * 
 	 * Pass in the controller so we can notify it when a photo/message is received via SMS
 	 */
-	
 	/** Message reading thread. */
 	public void run() {
 		SmsMessaging smsMessenger = new SmsMessaging();
@@ -96,7 +93,6 @@ public class SmsReceiverThread implements Runnable { //extends BaseThread {
 
 			System.out.println("Finishing SMSReceiver run()");
 		}
-
 	}
 }
 //#endif

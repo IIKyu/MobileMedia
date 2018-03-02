@@ -1,4 +1,4 @@
-// #ifdef includeMMAPI
+// #if includeMMAPI || includeVideo
 // [NC] Added in the scenario 07
 package ubc.midp.mobilephoto.core.util;
 
@@ -14,26 +14,21 @@ public class MusicMediaUtil extends MediaUtil {
 		try {
 			byte[] mediadata = super.getBytesFromMediaInfo(ii);
 			if (ii instanceof MultiMediaData) {
-
-				
 				String byteString = new String(mediadata);
 				byteString = byteString.concat(DELIMITER);
 
 				byteString = byteString.concat(((MultiMediaData) ii).getTypeMedia());
 				return byteString.getBytes();
-
 			}
 			return mediadata;
 		} catch (Exception e) {
 			throw new InvalidImageDataException(
 					"The provided data are not valid");
 		}
-		
 	}
 
 	public MediaData getMultiMediaInfoFromBytes(byte[] bytes)
 			throws InvalidArrayFormatException {
-		// TODO Auto-generated method stub
 		MediaData mediadata =  super.getMediaInfoFromBytes(bytes);
 		String iiString = new String(bytes);
 		
@@ -48,8 +43,6 @@ public class MusicMediaUtil extends MediaUtil {
 		String mediaType = iiString.substring(startIndex, endIndex);
 		MultiMediaData mmedi = new MultiMediaData(mediadata,mediaType);
 		return mmedi;
-
 	}
-
 }
 //#endif

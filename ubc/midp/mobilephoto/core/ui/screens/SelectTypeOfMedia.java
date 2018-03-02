@@ -1,18 +1,16 @@
-// #if includeMMAPI && includePhotoAlbum
+// #if (includeMMAPI && includePhotoAlbum)||(includeMMAPI && includeVideo) || (includeVideo && includePhotoAlbum)
 // [NC] Added in the scenario 07
 
 package ubc.midp.mobilephoto.core.ui.screens;
 
 import javax.microedition.lcdui.Choice;
 import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.List;
 
 public class SelectTypeOfMedia extends List {
 
 	public static final Command exitCommand = new Command("Exit", Command.STOP, 2);
 	public static final Command selectCommand = new Command("Select", Command.ITEM, 1);
-
 
 	/**
 	 * Constructor
@@ -21,27 +19,6 @@ public class SelectTypeOfMedia extends List {
 		super("Select the media to Use", Choice.IMPLICIT);
 	}
 
-
-	/**
-	 * Constructor
-	 * @param arg0
-	 * @param arg1
-	 */
-	public SelectTypeOfMedia(String arg0, int arg1) {
-		super(arg0, arg1);
-	}
-
-	/**
-	 * Constructor
-	 * @param arg0
-	 * @param arg1
-	 * @param arg2
-	 * @param arg3
-	 */
-	public SelectTypeOfMedia(String arg0, int arg1, String[] arg2, Image[] arg3) {
-		super(arg0, arg1, arg2, arg3);
-	}
-	
 	/**
 	 * Initialize the menu items for this screen
 	 * 
@@ -66,9 +43,20 @@ public class SelectTypeOfMedia extends List {
 	 */
 	public void repaintListMedias(){
 	    this.deleteAll();
+	 // #ifdef includePhotoAlbum
+	 // [NC] Added in the scenario 08
 		this.append("Photos", null);
-		this.append("Music and Videos", null);
+		//#endif
+		
+		// #ifdef includeMMAPI
+		// [NC] Added in the scenario 08
+		this.append("Music", null);
+		//#endif
+		
+		// #ifdef includeVideo
+		// [NC] Added in the scenario 08
+		this.append("Videos", null);
+		//#endif
 	}
-
 }
 //#endif

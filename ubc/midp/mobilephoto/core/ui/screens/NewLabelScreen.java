@@ -2,7 +2,6 @@ package ubc.midp.mobilephoto.core.ui.screens;
 
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Form;
-import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.TextField;
 
 /**
@@ -35,18 +34,7 @@ public class NewLabelScreen extends Form {
 		cancel = new Command("Cancel", Command.EXIT, 1);
 		this.addCommand(ok);
 		this.addCommand(cancel);
-		
 	}
-	
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public NewLabelScreen(String title, Item[] items) {
-
-		super(title, items);
-		// TODO Auto-generated constructor stub
-	}	
 	
 	/**
 	 * @return Returns the new Album Name.

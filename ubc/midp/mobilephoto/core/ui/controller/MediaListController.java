@@ -17,10 +17,20 @@ import javax.microedition.lcdui.List;
 import lancs.midp.mobilephoto.lib.exceptions.UnavailablePhotoAlbumException;
 import ubc.midp.mobilephoto.core.ui.MainUIMidlet;
 import ubc.midp.mobilephoto.core.ui.datamodel.AlbumData;
+//#ifdef includeVideo
+// [NC] Added in the scenario 08	
+import ubc.midp.mobilephoto.core.ui.datamodel.VideoAlbumData;
+//#endif
+
 //#ifdef includePhotoAlbum
 //[NC] Added in the scenario 07
 import ubc.midp.mobilephoto.core.ui.datamodel.ImageAlbumData;
 //#endif
+//#ifdef includeMMAPI
+//[NC] Added in the scenario 08
+import ubc.midp.mobilephoto.core.ui.datamodel.MusicAlbumData;
+//#endif
+
 import ubc.midp.mobilephoto.core.ui.datamodel.MediaData;
 import ubc.midp.mobilephoto.core.ui.screens.AlbumListScreen;
 import ubc.midp.mobilephoto.core.ui.screens.MediaListScreen;
@@ -66,7 +76,6 @@ public class MediaListController extends AbstractController {
 	 * TODO: Refactor - Move this to ImageList class
 	 */
 	public void showMediaList(String recordName, boolean sort, boolean favorite) {
-
 		if (recordName == null)
 			recordName = getCurrentStoreName();
 		
@@ -82,16 +91,18 @@ public class MediaListController extends AbstractController {
 			mediaList = new MediaListScreen(MediaListScreen.SHOWPHOTO);
 		//#endif
 		
-		// #if includePhotoAlbum && includeMMAPI
+		// #if includeMMAPI
 		// [NC] Added in the scenario 07
-		else
-		//#endif
-		
-		// #ifdef includeMMAPI
-		// [NC] Added in the scenario 07	
+		if (getAlbumData() instanceof MusicAlbumData)
 			mediaList = new MediaListScreen(MediaListScreen.PLAYMUSIC);
 		//#endif
 		
+		// #if includeVideo
+		// [NC] Added in the scenario 08	
+		if (getAlbumData() instanceof VideoAlbumData)
+			mediaList = new MediaListScreen(MediaListScreen.PLAYVIDEO);
+		//#endif
+	
 		mediaList.setCommandListener(mediaController);
 		
 		//Command selectCommand = new Command("Open", Command.ITEM, 1);

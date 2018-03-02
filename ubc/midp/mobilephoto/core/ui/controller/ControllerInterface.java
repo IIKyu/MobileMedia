@@ -24,8 +24,15 @@ import javax.microedition.lcdui.Command;
  */
 public interface ControllerInterface {
 
+    /**
+     * @param command
+     */
     public void postCommand(Command command);
 	
+    /**
+     * @param command
+     * @return
+     */
     public boolean handleCommand(Command command);
     
 }

@@ -69,7 +69,6 @@ public abstract class AbstractController implements CommandListener, ControllerI
                 System.out.println("AbstractController::postCommand - Reached top of chain. No more handlers for command: " + command);
             }
         }
-
 	}
 
 	/* 
@@ -82,7 +81,9 @@ public abstract class AbstractController implements CommandListener, ControllerI
 		postCommand(c);
 	}
 
-
+    /**
+     * @param a
+     */
     public void setAlbumListAsCurrentScreen(Alert a) {
     	setCurrentScreen(a, albumListScreen);
     }
