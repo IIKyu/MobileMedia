@@ -11,11 +11,10 @@ import lancs.midp.mobilephoto.lib.exceptions.InvalidImageFormatException;
 import ubc.midp.mobilephoto.core.ui.datamodel.ImageData;
 
 /**
- * @author trevor
- * This is a utility class. It performs conversions between Image
- * objects and byte arrays, and Image metadata objects and byte arrays.
- * Byte arrays are the main format for storing data in RMS, and for
- * sending data over the wire.
+ * @author trevor This is a utility class. It performs conversions between Image
+ *         objects and byte arrays, and Image metadata objects and byte arrays.
+ *         Byte arrays are the main format for storing data in RMS, and for
+ *         sending data over the wire.
  */
 public class ImageUtil {
 
@@ -129,18 +128,32 @@ public class ImageUtil {
 			
 			if (endIndex == -1)
 				endIndex = iiString.length();
-
+			
 			String imageLabel = "";
 			imageLabel = iiString.substring(startIndex, endIndex);
+
+			// #ifdef includeFavourites
+			// [EF] Favorite (Scenario 03)
+			boolean favorite = false;
+			startIndex = endIndex + 1;
+			endIndex = iiString.indexOf(DELIMITER, startIndex);
+			System.out.println("<* ImageUtil.getImageInfoFromBytes() *> Favorite = "
+							+ iiString.substring(startIndex, endIndex));
+			
+			if (endIndex == -1)
+				endIndex = iiString.length();
+
+			favorite = (iiString.substring(startIndex, endIndex)).equalsIgnoreCase("true");
+			// #endif
 
 			// #ifdef includeCountViews
 			// [EF] Number of Views (Scenario 02)
 			startIndex = endIndex + 1;
 			endIndex = iiString.indexOf(DELIMITER, startIndex);
-			
+
 			if (endIndex == -1)
 				endIndex = iiString.length();
-			
+
 			int numberOfViews = 0;
 			try {
 				numberOfViews = Integer.parseInt(iiString.substring(startIndex, endIndex));
@@ -149,11 +162,12 @@ public class ImageUtil {
 				e.printStackTrace();
 			}
 			// #endif
-			
+				
 			// TODO: Add preprocessor statements here
 
 			// Get the phone number if one exists
 //			if ((endIndex + 1) < iiString.length()) {
+//				System.out.println("<* ImageUtil.getImageInfoFromBytes() *> phoneNum : "+endIndex+" < "+iiString.length());
 //				startIndex = endIndex + 1;
 //				endIndex = iiString.indexOf(DELIMITER, startIndex);
 //				if (endIndex == -1)
@@ -164,12 +178,14 @@ public class ImageUtil {
 			Integer x = Integer.valueOf(fidString);
 			ImageData ii = new ImageData(x.intValue(), albumLabel, imageLabel);
 			
-			System.out.println("<* 4 *> ii = "+ii.getImageLabel());
+			// #ifdef includeFavourites
+			ii.setFavorite(favorite);
+			// #endif
 			
 			// #ifdef includeCountViews
 			ii.setNumberOfViews(numberOfViews);
 			// #endif
-
+			
 			x = Integer.valueOf(intString);
 			ii.setRecordId(x.intValue());
 			return ii;
@@ -212,8 +228,15 @@ public class ImageUtil {
 			// Convert the label (name) field
 			byteString = byteString.concat(ii.getImageLabel());
 
+			// #ifdef includeFavourites
+			// [EF] Added in scenario 03
+			byteString = byteString.concat(DELIMITER);
+			if (ii.isFavorite()) byteString = byteString.concat("true");
+			else byteString = byteString.concat("false");
+			// #endif
+
 			// #ifdef includeCountViews
-			// [EF] Added in scenatio 02
+			// [EF] Added in scenario 02
 			byteString = byteString.concat(DELIMITER);
 			byteString = byteString.concat(""+ii.getNumberOfViews());
 			// #endif

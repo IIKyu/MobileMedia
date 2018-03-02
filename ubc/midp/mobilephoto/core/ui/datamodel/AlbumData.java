@@ -64,7 +64,7 @@ public class AlbumData {
 	}
 
 	/**
-	 *  Get the names of all images for a given Photo Album that exist in the Record Store.
+	 *  Get all images for a given Photo Album that exist in the Record Store.
 	 * @throws UnavailablePhotoAlbumException 
 	 * @throws InvalidImageDataException 
 	 * @throws PersistenceMechanismException 

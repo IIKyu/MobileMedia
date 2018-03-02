@@ -145,6 +145,8 @@ public class ImageAccessor {
 					storeName = ALBUM_LABEL + albumNames[i];
 					infoStoreName = INFO_LABEL + albumNames[i];
 
+//					System.out.println("<* ImageAccessor.resetImageRecordStore() *> delete "+storeName);
+					
 					RecordStore.deleteRecordStore(storeName);
 					RecordStore.deleteRecordStore(infoStoreName);
 
@@ -192,7 +194,6 @@ public class ImageAccessor {
 	public void addImageData(String photoname, String path, String albumname)
 			throws InvalidImageDataException, PersistenceMechanismException {
 
-//		System.out.println("<* ImageAccessor.addImageData *> photoname = "+photoname);
 		try {
 			imageRS = RecordStore
 					.openRecordStore(ALBUM_LABEL + albumname, true);
@@ -259,8 +260,6 @@ public class ImageAccessor {
 				ImageUtil converter = new ImageUtil();
 				ImageData iiObject = converter.getImageInfoFromBytes(data);
 
-//				System.out.println("<* ImageAccessor.loadImageDataFromRMS *> iiObject = "+iiObject.getImageLabel());
-				
 				// Add the info to the metadata hashtable
 				String label = iiObject.getImageLabel();
 				imagesVector.addElement(iiObject);
@@ -467,8 +466,6 @@ public class ImageAccessor {
 
 	public void deletePhotoAlbum(String albumName) throws PersistenceMechanismException {
 
-//		System.out.println("<* deletePhotoAlbum.ImageAccessor *> albumName = "+albumName);
-//		System.out.println("<* deletePhotoAlbum.ImageAccessor *> ALBUM_LABEL + albumName = "+ALBUM_LABEL + albumName);
 		try {
 			RecordStore.deleteRecordStore(ALBUM_LABEL + albumName);
 			RecordStore.deleteRecordStore(INFO_LABEL + albumName);

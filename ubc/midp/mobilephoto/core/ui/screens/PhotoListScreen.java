@@ -28,11 +28,17 @@ public class PhotoListScreen extends List {
 
 	// [EF] Added in the scenario 02 
 	public static final Command editLabelCommand = new Command("Edit Label", Command.ITEM, 1);
-
+	
 	// #ifdef includeCountViews
 	public static final Command sortCommand = new Command("Sort by Views", Command.ITEM, 1);
 	// #endif
-
+	
+	// #ifdef includeFavourites
+	// [EF] Added in the scenario 03 
+	public static final Command favoriteCommand = new Command("Set Favorite", Command.ITEM, 1);
+	public static final Command viewFavoritesCommand = new Command("View Favorites", Command.ITEM, 1);
+	// #endif
+	
 	/**
      * Constructor
      */
@@ -52,11 +58,17 @@ public class PhotoListScreen extends List {
 		
 		// [EF] Added in the scenario 02 
 		this.addCommand(editLabelCommand);
-
+		
 		// #ifdef includeCountViews
 		this.addCommand(sortCommand);
 		// #endif
 		
+		// #ifdef includeFavourites
+		// [EF] Added in the scenario 03 
+		this.addCommand(favoriteCommand);
+		this.addCommand(viewFavoritesCommand);
+		// #endif
+
 		this.addCommand(backCommand);
 
 		//Add the optional feature menu items only if they are specified in 

@@ -27,6 +27,11 @@ public class ImageData {
 	private int numberOfViews = 0;
 	// #endif
 	
+	// #ifdef includeFavourites
+	// [EF] Added in the scenario 03 
+	private boolean favorite = false;
+	// #endif
+
 	/**
 	 * @param foreignRecordId
 	 * @param parentAlbumName
@@ -95,6 +100,31 @@ public class ImageData {
 	public void setParentAlbumName(String parentAlbumName) {
 		this.parentAlbumName = parentAlbumName;
 	}
+
+	// #ifdef includeFavourites
+	/**
+	 * [EF] Added in the scenario 03
+	 */
+	public void toggleFavorite() {
+		this.favorite = ! favorite;
+	}
+	
+	/**
+	 * [EF] Added in the scenario 03
+	 * @param favorite
+	 */
+	public void setFavorite(boolean favorite) {
+		this.favorite = favorite;
+	}
+
+	/**
+	 * [EF] Added in the scenario 03
+	 * @return the favorite
+	 */
+	public boolean isFavorite() {
+		return favorite;
+	}
+	// #endif	
 
 	// #ifdef includeCountViews
 	/**

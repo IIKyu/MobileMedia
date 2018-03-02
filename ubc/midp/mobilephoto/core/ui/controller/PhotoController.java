@@ -53,7 +53,7 @@ public class PhotoController implements CommandListener {
 	 */
     private void goToPreviousScreen() {
 	    System.out.println("<* PhotoController.goToPreviousScreen() *>");
-	    this.nextController.showImageList(null, false);
+	    this.nextController.showImageList(null, false, false);
 	    this.nextController.setCurrentScreenName(Constants.IMAGELIST_SCREEN);
     } 
 

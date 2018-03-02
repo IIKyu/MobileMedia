@@ -52,14 +52,12 @@ public class BaseController implements CommandListener, ControllerInterface {
 	// [EF] OR do not exist by Version 04.
 	private BaseController nextController;
 	
-	// Define the basic screens
-	// TODO [EF] First, I don't think these classes which belong to View should be here; 
-	// [EM] Sencond, most of these attributes are not being used.
+	//Define the basic screens
 	private AlbumListScreen albumListScreen;
 
 	//Keep track of the navigation so we can go 'back' easily
 	private String currentScreenName;
-
+	
 	//Keep track of the current photo album being viewed
 	//Ie. name of the currently active J2ME record store
 	private String currentStoreName = "My Photo Album";
@@ -135,7 +133,6 @@ public class BaseController implements CommandListener, ControllerInterface {
 			return true;
 		/** Case: Reset PhotoAlbum data **/
 		} else if (label.equals("Reset")) {
-			System.out.println("<* BaseController.handleCommand() *> Reset Photo Album");			
 		    resetImageData();
 			currentScreenName = Constants.ALBUMLIST_SCREEN;
 			return true;
@@ -208,7 +205,7 @@ public class BaseController implements CommandListener, ControllerInterface {
 			//Get the name of the PhotoAlbum selected, and load image list from RecordStore
 			List down = (List) display.getCurrent();
 			currentStoreName = down.getString(down.getSelectedIndex());
-			showImageList(currentStoreName, false);
+			showImageList(currentStoreName, false, false);
 			currentScreenName = Constants.IMAGELIST_SCREEN;
 			return true;
 			/** Case: View Image **/
@@ -217,7 +214,7 @@ public class BaseController implements CommandListener, ControllerInterface {
 	      	showImage(selectedImageName);
 	      	
 			// #ifdef includeCountViews
-	      	// [EF] Added in the scenario 02 
+			// [EF] Added in the scenario 02 
 			try {
 				ImageData image = model.getImageAccessor().getImageInfo(selectedImageName);
 				image.increaseNumberOfViews();
@@ -280,7 +277,7 @@ public class BaseController implements CommandListener, ControllerInterface {
 				Alert alert = new Alert( "Error", "The selected photo was not found in the mobile device", null, AlertType.ERROR);
 				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());		        return true;
 			}
-	      	showImageList(currentStoreName, false);
+	      	showImageList(currentStoreName, false, false);
 		    currentScreenName = Constants.IMAGELIST_SCREEN;
 			return true;
 	      	
@@ -310,12 +307,41 @@ public class BaseController implements CommandListener, ControllerInterface {
 		/** Case: Sort photos by number of views
 		 * [EF] Added in the scenario 02 **/
 		} else if (label.equals("Sort by Views")) {
-			showImageList(currentStoreName, true);
+			showImageList(currentStoreName, true, false);
 		    currentScreenName = Constants.IMAGELIST_SCREEN;
 			
 			return true;
 		// #endif
 				
+		// #ifdef includeFavourites
+		/** Case: Set photo as favorite 
+		 * [EF] Added in the scenario 03 **/
+		} else if (label.equals("Set Favorite")) {
+		   	String selectedImageName = getSelectedImageName();
+			try {
+				ImageData image = model.getImageAccessor().getImageInfo(selectedImageName);
+				image.toggleFavorite();
+		      	updateImage(image);
+				System.out.println("<* BaseController.handleCommand() *> Image = "+selectedImageName+ "; Favorite = "+image.isFavorite());
+			} catch (ImageNotFoundException e) {
+				Alert alert = new Alert( "Error", "The selected photo was not found in the mobile device", null, AlertType.ERROR);
+				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+			} catch (NullAlbumDataReference e) {
+				model = new AlbumData();
+				Alert alert = new Alert( "Error", "The operation is not available. Try again later !", null, AlertType.ERROR);
+				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+			}
+			return true;
+				
+		/** Case: View favorite photos 
+		 * [EF] Added in the scenario 03 **/
+		} else if (label.equals("View Favorites")) {
+			showImageList(currentStoreName, false, true);
+		    currentScreenName = Constants.IMAGELIST_SCREEN;
+
+			return true;
+		// #endif
+			
 		/** Case: Go to the Previous or Fallback screen **/
 		} else if (label.equals("Back")) {
 		    
@@ -433,7 +459,7 @@ public class BaseController implements CommandListener, ControllerInterface {
 		    System.out.println("Can't go back here...Should never reach this spot");
 		} else if (currentScreenName.equals(Constants.IMAGE_SCREEN)) {		    
 		    //Go to the image list here, not the main screen...
-		    showImageList(currentStoreName, false);
+		    showImageList(currentStoreName, false , false);
 		    currentScreenName = Constants.IMAGELIST_SCREEN;
 		} else if (currentScreenName.equals(Constants.IMAGELIST_SCREEN)) {
 		    setCurrentScreen(albumListScreen);
@@ -448,7 +474,7 @@ public class BaseController implements CommandListener, ControllerInterface {
 			setCurrentScreen(albumListScreen);
 		    currentScreenName = Constants.ALBUMLIST_SCREEN;
 		}else if (currentScreenName.equals(Constants.ADDPHOTOTOALBUM_SCREEN)) {
-			showImageList(currentStoreName, false);
+			showImageList(currentStoreName, false, false);
 		    currentScreenName = Constants.IMAGELIST_SCREEN;
 		}
 		
@@ -495,7 +521,7 @@ public class BaseController implements CommandListener, ControllerInterface {
      * Show the list of images in the record store
 	 * TODO: Refactor - Move this to ImageList class
 	 */
-	public void showImageList(String recordName, boolean sort) {
+	public void showImageList(String recordName, boolean sort, boolean favorite) {
 
 		if (recordName == null)
 			recordName = currentStoreName;
@@ -514,8 +540,8 @@ public class BaseController implements CommandListener, ControllerInterface {
 			Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
 	        return;
 	    }
+		
 		if (images==null) return;
-//		System.out.println("<*BaseController.showImageList*> images.length = "+images.length);
 		
 		// #ifdef includeCountViews
 		// [EF] Check if sort is true (Add in the Scenario 02)
@@ -523,12 +549,22 @@ public class BaseController implements CommandListener, ControllerInterface {
 			bubbleSort(images);
 		}
 		// #endif
-		
+
 		//loop through array and add labels to list
 		for (int i = 0; i < images.length; i++) {
 			if (images[i] != null) {
 				//Add album name to menu list
-				imageList.append(images[i].getImageLabel(), null);
+				
+				// #ifdef includeFavourites
+				// [EF] Check if favorite is true (Add in the Scenario 03)
+				if (favorite) {
+					if (images[i].isFavorite())
+						imageList.append(images[i].getImageLabel(), null);
+				}
+				else 
+				// #endif
+					imageList.append(images[i].getImageLabel(), null);
+				
 			}
 		}
 		setCurrentScreen(imageList);
