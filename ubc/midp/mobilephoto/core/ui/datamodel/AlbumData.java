@@ -172,7 +172,7 @@ public class AlbumData {
 	}
 
 	/**
-	 * [EF] Add in order to have access to ImageData
+	 * [EF] Added in order to have access to ImageData
 	 * @param imageAccessor
 	 */
 	public void setImageAccessor(ImageAccessor imageAccessor) {
@@ -180,7 +180,7 @@ public class AlbumData {
 	}
 
 	/**
-	 * [EF] Add in order to have access to ImageData
+	 * [EF] Added in order to have access to ImageData
 	 * @return
 	 */
 	public ImageAccessor getImageAccessor() {

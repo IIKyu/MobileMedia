@@ -143,7 +143,6 @@ public class ImageData {
 	}
 	
 	/**
-	 * [EF] Added in the scenario 02 
 	 * @param views
 	 */
 	public void setNumberOfViews(int views) {

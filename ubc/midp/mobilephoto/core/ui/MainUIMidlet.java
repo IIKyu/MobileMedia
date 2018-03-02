@@ -3,8 +3,11 @@ package ubc.midp.mobilephoto.core.ui;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
+import ubc.midp.mobilephoto.core.ui.controller.AlbumController;
 import ubc.midp.mobilephoto.core.ui.controller.BaseController;
+import ubc.midp.mobilephoto.core.ui.controller.PhotoListController;
 import ubc.midp.mobilephoto.core.ui.datamodel.AlbumData;
+import ubc.midp.mobilephoto.core.ui.screens.AlbumListScreen;
 
 //Following are pre-processor statements to include the required
 //classes for device specific features. They must be commented out
@@ -47,7 +50,17 @@ public class MainUIMidlet extends MIDlet {
 	 */
 	public void startApp() throws MIDletStateChangeException {
 		model = new AlbumData();
-	    rootController = new BaseController(this, model);
+		AlbumListScreen album = new AlbumListScreen();
+		rootController = new BaseController(this, model, album);
+		
+		// [EF] Add in scenario 04: initialize sub-controllers
+		PhotoListController photoListController = new PhotoListController(this, model, album);
+		photoListController.setNextController(rootController);
+		
+		AlbumController albumController = new AlbumController(this, model, album);
+		albumController.setNextController(photoListController);
+		album.setCommandListener(albumController);
+		
 		//Only the first (last?) controller needs to be initialized (?)
 		rootController.init(model);
 	}

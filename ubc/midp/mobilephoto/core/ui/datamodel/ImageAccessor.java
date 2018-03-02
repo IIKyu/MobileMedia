@@ -79,8 +79,7 @@ public class ImageAccessor {
 		String[] currentStores = RecordStore.listRecordStores();
 
 		if (currentStores != null) {
-			System.out.println("ImageAccessor::loadAlbums: Found: "
-					+ currentStores.length + " existing record stores");
+			System.out.println("ImageAccessor::loadAlbums: Found: " + currentStores.length + " existing record stores");
 			model.existingRecords = true;
 			String[] temp = new String[currentStores.length];
 			int count = 0;
@@ -111,11 +110,11 @@ public class ImageAccessor {
 				}
 			}
 		} else {
-			System.out
-					.println("ImageAccessor::loadAlbums: 0 record stores exist. Creating default one.");
+			System.out.println("ImageAccessor::loadAlbums: 0 record stores exist. Creating default one.");
 			resetImageRecordStore();
 			loadAlbums();
 		}
+//		System.out.println("ImageAccessor::loadAlbums: Finished ok! ");
 	}
 
 	/**
@@ -128,8 +127,7 @@ public class ImageAccessor {
 	 * @throws PersistenceMechanismException
 	 * 
 	 */
-	public void resetImageRecordStore() throws InvalidImageDataException,
-			PersistenceMechanismException {
+	public void resetImageRecordStore() throws InvalidImageDataException, PersistenceMechanismException {
 
 		String storeName = null;
 		String infoStoreName = null;
@@ -145,7 +143,7 @@ public class ImageAccessor {
 					storeName = ALBUM_LABEL + albumNames[i];
 					infoStoreName = INFO_LABEL + albumNames[i];
 
-//					System.out.println("<* ImageAccessor.resetImageRecordStore() *> delete "+storeName);
+					System.out.println("<* ImageAccessor.resetImageRecordStore() *> delete "+storeName);
 					
 					RecordStore.deleteRecordStore(storeName);
 					RecordStore.deleteRecordStore(infoStoreName);
@@ -228,6 +226,42 @@ public class ImageAccessor {
 		}
 	}
 
+	// #ifdef includeCopyPhoto
+	/**
+	 * [EF] Add in scenario 05
+	 * @param photoname
+	 * @param imageData
+	 * @param albumname
+	 * @throws InvalidImageDataException
+	 * @throws PersistenceMechanismException
+	 */
+	public void addImageData(String photoname, ImageData imageData, String albumname) throws InvalidImageDataException, PersistenceMechanismException {
+		try {
+			imageRS = RecordStore.openRecordStore(ALBUM_LABEL + albumname, true);
+			imageInfoRS = RecordStore.openRecordStore(INFO_LABEL + albumname, true);
+			int rid2; // new record ID for ImageData (metadata)
+			ImageUtil converter = new ImageUtil();
+			rid2 = imageInfoRS.getNextRecordID();
+			imageData.setRecordId(rid2);
+			byte[] data1 = converter.getBytesFromImageInfo(imageData);
+			imageInfoRS.addRecord(data1, 0, data1.length);
+		} catch (RecordStoreException e) {
+			throw new PersistenceMechanismException();
+		}finally{
+			try {
+				imageRS.closeRecordStore();
+				imageInfoRS.closeRecordStore();
+			} catch (RecordStoreNotOpenException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (RecordStoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	// #endif
+
 	/**
 	 * This will populate the imageInfo hashtable with the ImageInfo object,
 	 * referenced by label name and populate the imageTable hashtable with Image
@@ -292,16 +326,13 @@ public class ImageAccessor {
 
 			// Parse the Data store name to get the Info store name
 			String infoStoreName = oldData.getParentAlbumName();
-			infoStoreName = ImageAccessor.INFO_LABEL
-					+ infoStoreName.substring(ImageAccessor.ALBUM_LABEL
-							.length());
+			infoStoreName = ImageAccessor.INFO_LABEL + infoStoreName.substring(ImageAccessor.ALBUM_LABEL.length());
 			infoStore = RecordStore.openRecordStore(infoStoreName, false);
 
 			ImageUtil converter = new ImageUtil();
 			byte[] imageDataBytes = converter.getBytesFromImageInfo(newData);
 
-			infoStore.setRecord(oldData.getRecordId(), imageDataBytes, 0,
-					imageDataBytes.length);
+			infoStore.setRecord(oldData.getRecordId(), imageDataBytes, 0, imageDataBytes.length);
 
 		} catch (RecordStoreException rse) {
 			throw new PersistenceMechanismException(rse);
@@ -441,9 +472,7 @@ public class ImageAccessor {
 		RecordStore newAlbumRS = null;
 		RecordStore newAlbumInfoRS = null;
 		if (albumName.equals("")){
-			System.out.println("Deve ter levantado ex");
 			throw new InvalidPhotoAlbumNameException();
-			
 		}
 		String[] names  = getAlbumNames();
 		for (int i = 0; i < names.length; i++) {

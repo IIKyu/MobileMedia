@@ -25,6 +25,11 @@ public class PhotoViewScreen extends Canvas {
     
 	public static final Command backCommand = new Command("Back", Command.BACK, 0);
 
+	// #ifdef includeCopyPhoto
+	/* [EF] Added in scenario 05 */
+	public static final Command copyCommand = new Command("Copy", Command.ITEM, 1);
+	// #endif
+
 	/**
 	 * Constructor
 	 * @param img
@@ -34,6 +39,10 @@ public class PhotoViewScreen extends Canvas {
 		//Instead of loading it from a list, pass the image in directly
 		image = img;
 		this.addCommand(backCommand);
+		
+		// #ifdef includeCopyPhoto
+		this.addCommand(copyCommand);
+		// #endif
 	}
 	
 	/**

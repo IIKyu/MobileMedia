@@ -137,12 +137,10 @@ public class ImageUtil {
 			boolean favorite = false;
 			startIndex = endIndex + 1;
 			endIndex = iiString.indexOf(DELIMITER, startIndex);
-			System.out.println("<* ImageUtil.getImageInfoFromBytes() *> Favorite = "
-							+ iiString.substring(startIndex, endIndex));
 			
 			if (endIndex == -1)
 				endIndex = iiString.length();
-
+			
 			favorite = (iiString.substring(startIndex, endIndex)).equalsIgnoreCase("true");
 			// #endif
 
@@ -150,10 +148,10 @@ public class ImageUtil {
 			// [EF] Number of Views (Scenario 02)
 			startIndex = endIndex + 1;
 			endIndex = iiString.indexOf(DELIMITER, startIndex);
-
+			
 			if (endIndex == -1)
 				endIndex = iiString.length();
-
+			
 			int numberOfViews = 0;
 			try {
 				numberOfViews = Integer.parseInt(iiString.substring(startIndex, endIndex));
@@ -162,7 +160,7 @@ public class ImageUtil {
 				e.printStackTrace();
 			}
 			// #endif
-				
+
 			// TODO: Add preprocessor statements here
 
 			// Get the phone number if one exists

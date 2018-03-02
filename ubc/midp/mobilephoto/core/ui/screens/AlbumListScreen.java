@@ -55,7 +55,6 @@ public class AlbumListScreen extends List {
 		super(arg0, arg1, arg2, arg3);
 	}
 	
-	
 	/**
 	 * Initialize the menu items for this screen
 	 * 
@@ -67,11 +66,19 @@ public class AlbumListScreen extends List {
 		this.addCommand(deleteAlbumCommand);
 		this.addCommand(resetCommand);
 	}
+	
+	/* (non-Javadoc)
+	 * @see javax.microedition.lcdui.List#deleteAll()
+	 */
 	public void deleteAll(){
 		for (int i = 0; i < this.size(); i++) {
 			this.delete(i);
 		} 
 	}
+	
+	/**
+	 * @param names
+	 */
 	public void repaintListAlbum(String[] names){
 		String[] albumNames = names;
 	    this.deleteAll();

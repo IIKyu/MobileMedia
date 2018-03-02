@@ -16,7 +16,7 @@ public class AddPhotoToAlbum extends Form {
 		super(title);
 		this.append(labeltxt);
 		this.append(photopathtxt);
-		ok = new Command("Save Add Photo", Command.SCREEN, 0);
+		ok = new Command("Save Photo", Command.SCREEN, 0);
 		cancel = new Command("Cancel", Command.EXIT, 1);
 		this.addCommand(ok);
 		this.addCommand(cancel);
@@ -26,7 +26,23 @@ public class AddPhotoToAlbum extends Form {
 		return labeltxt.getString();
 	}
 	
-	public String getPath(){
+	/**
+	 * [EF] Added in scenario 05 in order to reuse this screen in the Copy Photo functionality
+	 * @param photoName
+	 */
+	public void setPhotoName(String photoName) {
+		labeltxt.setString(photoName);
+	}
+	
+	public String getPath() {
 		return photopathtxt.getString();
+	}
+
+	/**
+	 * [EF] Added in scenario 05 in order to reuse this screen in the Copy Photo functionality
+	 * @param photoName
+	 */
+	public void setLabePhotoPath(String label) {
+		photopathtxt.setLabel(label);
 	}
 }
