@@ -225,7 +225,67 @@ public class ImageAccessor {
 			throw new PersistenceMechanismException();
 		}
 	}
+	// #ifdef includeSmsFeature
+	/* [NC] Added in scenario 06 */
+	public byte[] getByteFromImage(Image img){
+		int w = img.getWidth();
+		int h = img.getHeight();
+		int data_int[] = new int[ w * h ];
+		img.getRGB( data_int, 0, w, 0, 0, w, h );
+		byte[] data_byte = new byte[ w * h * 3 ];
+		for ( int i = 0; i < w * h; ++i )
+		{
+		int color = data_int[ i ];
+		int offset = i * 3;
+		data_byte[ offset ] = ( byte ) ( ( color & 0xff0000 ) >> 16 );
+		data_byte[ offset +
+		1 ] = ( byte ) ( ( color & 0xff00 ) >> 8 );
+		data_byte[ offset + 2 ] = ( byte ) ( ( color & 0xff ) );
+		}
+		return data_byte;
+	}
+	
+	
+	public void addImageData(String photoname, Image imgdata, String albumname)
+			throws InvalidImageDataException, PersistenceMechanismException {
 
+		try {
+			imageRS = RecordStore
+					.openRecordStore(ALBUM_LABEL + albumname, true);
+			imageInfoRS = RecordStore.openRecordStore(INFO_LABEL + albumname,
+					true);
+			int rid; // new record ID for Image (bytes)
+			int rid2; // new record ID for ImageData (metadata)
+			
+			
+
+			ImageUtil converter = new ImageUtil();
+
+			// NOTE: For some Siemen's phone, all images have to be less than
+			// 16K
+			// May have to check for this, or try to convert to a lesser format
+			// for display on Siemen's phones (Could put this in an Aspect)
+
+			// Add Tucan
+			byte[] data1 = getByteFromImage(imgdata);
+			rid = imageRS.addRecord(data1, 0, data1.length);
+			ImageData ii = new ImageData(rid, ImageAccessor.ALBUM_LABEL
+					+ albumname, photoname);
+			rid2 = imageInfoRS.getNextRecordID();
+			ii.setRecordId(rid2);
+			data1 = converter.getBytesFromImageInfo(ii);
+			imageInfoRS.addRecord(data1, 0, data1.length);
+
+			imageRS.closeRecordStore();
+
+			imageInfoRS.closeRecordStore();
+		} catch (RecordStoreException e) {
+			throw new PersistenceMechanismException();
+		}
+	}
+	//#endif	
+	
+	
 	// #ifdef includeCopyPhoto
 	/**
 	 * [EF] Add in scenario 05

@@ -9,6 +9,11 @@ import ubc.midp.mobilephoto.core.ui.controller.PhotoListController;
 import ubc.midp.mobilephoto.core.ui.datamodel.AlbumData;
 import ubc.midp.mobilephoto.core.ui.screens.AlbumListScreen;
 
+//#ifdef includeSmsFeature
+import ubc.midp.mobilephoto.sms.SmsReceiverController;
+import ubc.midp.mobilephoto.sms.SmsReceiverThread;
+//#endif
+
 //Following are pre-processor statements to include the required
 //classes for device specific features. They must be commented out
 //if they aren't used, otherwise it will throw exceptions trying to
@@ -60,6 +65,18 @@ public class MainUIMidlet extends MIDlet {
 		AlbumController albumController = new AlbumController(this, model, album);
 		albumController.setNextController(photoListController);
 		album.setCommandListener(albumController);
+		
+		
+
+		//#ifdef includeSmsFeature
+		/* [NC] Added in scenario 06 */
+		SmsReceiverController controller = new SmsReceiverController(this, model, album);
+		controller.setNextController(albumController);
+		SmsReceiverThread smsR = new SmsReceiverThread(this, model, album, controller);
+		System.out.println("SmsController::Starting SMSReceiver Thread");
+		new Thread(smsR).start();
+		//#endif
+
 		
 		//Only the first (last?) controller needs to be initialized (?)
 		rootController.init(model);

@@ -30,6 +30,11 @@ import ubc.midp.mobilephoto.core.ui.screens.NewLabelScreen;
 import ubc.midp.mobilephoto.core.ui.screens.PhotoViewScreen;
 import ubc.midp.mobilephoto.core.util.Constants;
 
+
+//#ifdef includeSmsFeature
+import ubc.midp.mobilephoto.sms.SmsSenderController;
+//#endif
+
 /**
  * @author Eduardo Figueiredo
  * Added in the Scenario 02
@@ -65,8 +70,15 @@ public class PhotoController extends PhotoListController {
 				this.setAlbumData( new AlbumData() );
 				Alert alert = new Alert( "Error", "The operation is not available. Try again later !", null, AlertType.ERROR);
 				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+			}catch (InvalidImageDataException e) {
+				Alert alert = new Alert( "Error", "The image data is not valid", null, AlertType.ERROR);
+		        alert.setTimeout(5000);
+			} catch (PersistenceMechanismException e) {
+				Alert alert = new Alert( "Error", "It was not possible to recovery the selected image", null, AlertType.ERROR);
+		        alert.setTimeout(5000);
 			}
 			// #endif
+			
 			
 			ScreenSingleton.getInstance().setCurrentScreenName(Constants.IMAGE_SCREEN);
 			return true;
@@ -177,6 +189,20 @@ public class PhotoController extends PhotoListController {
 				this.setAlbumData(new AlbumData());
 				Alert alert = new Alert( "Error", "The operation is not available. Try again later !", null, AlertType.ERROR);
 				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+			} catch (InvalidImageDataException e) {
+				Alert alert = null;
+				if (e instanceof ImagePathNotValidException)
+					alert = new Alert("Error", "The path is not valid", null, AlertType.ERROR);
+				else
+					alert = new Alert("Error", "The image file format is not valid", null, AlertType.ERROR);
+				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+			} catch (PersistenceMechanismException e) {
+				Alert alert = null;
+				if (e.getCause() instanceof  RecordStoreFullException)
+					alert = new Alert( "Error", "The mobile database is full", null, AlertType.ERROR);
+				else
+					alert = new Alert( "Error", "The mobile database can not update new informations", null, AlertType.ERROR);
+				Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
 			}
 			return true;
 
@@ -196,7 +222,19 @@ public class PhotoController extends PhotoListController {
 						.println("<* PhotoController.handleCommand() *> Save Photo Label = "
 								+ this.screen.getLabelName());
 				this.getImage().setImageLabel(this.screen.getLabelName());
-				updateImage(image);
+				try {
+					updateImage(image);
+				} catch (InvalidImageDataException e) {
+					Alert alert = null;
+					if (e instanceof ImagePathNotValidException)
+						alert = new Alert("Error", "The path is not valid", null, AlertType.ERROR);
+					else
+						alert = new Alert("Error", "The image file format is not valid", null, AlertType.ERROR);
+					Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+				} catch (PersistenceMechanismException e) {
+					Alert alert = new Alert("Error", "The mobile database can not update this photo", null, AlertType.ERROR);
+					Display.getDisplay(midlet).setCurrent(alert, Display.getDisplay(midlet).getCurrent());
+				}
 				return goToPreviousScreen();
 		
 		/** Case: Go to the Previous or Fallback screen * */
@@ -212,16 +250,9 @@ public class PhotoController extends PhotoListController {
 		return false;
 	}
 
-	void updateImage(ImageData image) {
-		try {
+	void updateImage(ImageData image) throws InvalidImageDataException, PersistenceMechanismException {
 			getAlbumData().getImageAccessor().updateImageInfo(image, image);
-		} catch (InvalidImageDataException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (PersistenceMechanismException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	
 	}
 	
     /**
@@ -259,12 +290,22 @@ public class PhotoController extends PhotoListController {
 		//We can pass in the image directly here, or just the name/model pair and have it loaded
 		PhotoViewScreen canv = new PhotoViewScreen(storedImage);
 		canv.setCommandListener( this );
-		
-		// #ifdef includeCopyPhoto
+		AbstractController nextcontroller = this; 
+		// #if includeCopyPhoto || includeSmsFeature
 		PhotoViewController controller = new PhotoViewController(midlet, getAlbumData(), getAlbumListScreen(), name);
-		controller.setNextController(this);
+		controller.setNextController(nextcontroller);
 		canv.setCommandListener(controller);
+		nextcontroller = controller;
 		// #endif
+		
+		//#ifdef includeSmsFeature
+		/* [NC] Added in scenario 06 */
+		SmsSenderController smscontroller = new SmsSenderController(midlet, getAlbumData(), getAlbumListScreen(), name);
+		//this.setNextController(smscontroller);
+		smscontroller.setNextController(nextcontroller);
+		canv.setCommandListener(smscontroller);
+		nextcontroller = smscontroller;
+		//#endif
 		
 		setCurrentScreen(canv);
 	}
